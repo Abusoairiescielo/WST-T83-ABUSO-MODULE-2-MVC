@@ -32,16 +32,17 @@
                 opacity: 0.1;
             }
             .text-gradient {
-                background: linear-gradient(135deg, var(--violet-light) 0%, var(--violet-medium) 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                background: none !important;
+                -webkit-background-clip: initial !important;
+                -webkit-text-fill-color: #E8E8E8 !important;
+                font-weight: bold !important;
             }
             .navbar {
                 background: rgba(85, 50, 133, 0.1);
                 backdrop-filter: blur(10px);
             }
             .btn-custom {
-                background: linear-gradient(135deg, var(--violet-medium) 0%, var(--violet-dark) 100%);
+                background: linear-gradient(135deg, #4B0082 0%, #1E90FF 100%);  /* Indigo to Dodger Blue */
                 color: white;
                 padding: 0.75rem 1.5rem;
                 border-radius: 0.75rem;
@@ -53,10 +54,10 @@
                 margin: 0 1rem;
             }
             .btn-custom:hover {
-                background: linear-gradient(135deg, var(--violet-light) 0%, var(--violet-medium) 100%);
+                background: linear-gradient(135deg, #1E90FF 0%, #4B0082 100%);  /* Reverse gradient on hover */
                 color: white;
                 transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(85, 50, 133, 0.2);
+                box-shadow: 0 4px 12px rgba(75, 0, 130, 0.3);
             }
             .btn-custom i {
                 margin-right: 0.5rem;
@@ -164,13 +165,23 @@
                 box-shadow: 0 4px 12px rgba(85, 50, 133, 0.2);
                 color: white;
             }
+            .navbar-brand {
+                color: #E8E8E8 !important;
+                font-weight: bold;
+            }
+            .welcome-text {
+                background: none !important;
+                -webkit-background-clip: initial !important;
+                -webkit-text-fill-color: #E8E8E8 !important;  /* Dirty white color */
+                font-weight: 600 !important;  /* Slightly bold (600) instead of full bold (700) */
+            }
         </style>
     </head>
     <body>
         <!-- Navigation -->
         <nav class="navbar navbar-expand-lg position-absolute top-0 z-index-3 w-100">
             <div class="container">
-                <a class="navbar-brand text-white fs-3" href="/">
+                <a class="navbar-brand fs-3" href="/">
                     <span class="font-weight-bold">Student Information System</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
@@ -218,13 +229,12 @@
             <div class="container position-relative z-index-2">
                 <div class="row min-vh-100 align-items-center">
                     <div class="col-lg-8 text-center mx-auto">
-                        <h1 class="text-white mb-2 mt-5">Welcome to</h1>
+                        <h1 class="welcome-text mb-2 mt-5">Welcome to</h1>
                         <h1 class="text-gradient display-3 font-weight-bolder mb-4">
                             Student Information System
                         </h1>
                         <p class="text-white-50 lead mb-5">
-                            Manage student records, track academic progress, and streamline 
-                            administrative tasks efficiently.
+                        This Laravel-based SIS manages students, subjects, enrollments, and grades with secure access.
                         </p>
                         @auth
                             @if(Auth::user()->user_type === 'student')

@@ -242,6 +242,11 @@
         background: rgba(255, 255, 255, 0.1);
         border-radius: 0.5rem;
     }
+
+    /* Add this to your existing styles */
+    .page-header-text {
+        font-weight: 500 !important;
+    }
   </style>
 </head>
 

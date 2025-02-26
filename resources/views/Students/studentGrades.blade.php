@@ -1,7 +1,9 @@
 @extends('layouts.dashboardTemp')
 
 @section('title', 'My Grades')
-@section('Pages', 'My Grades')
+@section('Pages')
+    <span style="font-weight: 500 !important;">My Grades</span>
+@endsection
 
 @section('content')
 <div class="container-fluid py-4">
@@ -9,7 +11,7 @@
         <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header pb-0">
-                    <h6>My Grades</h6>
+                    <h6 class="text-white">My Grades</h6>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
                     <div class="table-responsive p-0">
