@@ -26,13 +26,15 @@
                     </div>
                 </div>
                     <div class="card-body px-0 pt-0 pb-2">
-                        <div class="table-responsive p-0">
-                            <table id="studentsTable" class="table align-items-center mb-0">
+                        <div class="table-responsive">
+                            <table class="table">
                                 <thead>
                                     <tr>
                                         <th>Student ID</th>
                                         <th>Name</th>
                                         <th>Email</th>
+                                        <th>Course</th>
+                                        <th>Year</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -43,7 +45,13 @@
                                         <td>{{ $student->student_id }}</td>
                                         <td>{{ $student->name }}</td>
                                         <td>{{ $student->email }}</td>
-                                        <td>{{ $student->status }}</td>
+                                        <td>{{ $student->course }}</td>
+                                        <td>{{ $student->year }}</td>
+                                        <td>
+                                            <span class="badge {{ $student->status === 'active' ? 'bg-success' : 'bg-danger' }}">
+                                                {{ $student->status }}
+                                            </span>
+                                        </td>
                                         <td>
                                             <a class="btn bg-gradient-warning btn-sm" style="min-width: 85px; padding: 6px 12px;" 
                                                onclick="editStudent('{{ $student->id }}', '{{ $student->student_id }}', '{{ $student->name }}', '{{ $student->email }}', '{{ $student->status }}')">

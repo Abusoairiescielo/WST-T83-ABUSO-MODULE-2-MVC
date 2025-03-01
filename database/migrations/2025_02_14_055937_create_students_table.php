@@ -13,9 +13,8 @@ return new class extends Migration
             $table->string('student_id')->unique();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('phone')->nullable();
-            $table->text('address')->nullable();
-            $table->date('date_of_birth')->nullable();
+            $table->string('course')->nullable();
+            $table->string('year')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
