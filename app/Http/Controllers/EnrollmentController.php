@@ -28,6 +28,14 @@ class EnrollmentController extends Controller
 
             $student = Students::findOrFail($validated['student_id']);
             
+            // Check if subjects were selected
+            if (empty($validated['subjects'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please select at least one subject to enroll.'
+                ], 422);
+            }
+            
             // Check for existing subjects and only attach new ones
             $existingSubjects = $student->subjects->pluck('id')->toArray();
             $newSubjects = array_diff($validated['subjects'], $existingSubjects);
@@ -48,7 +56,7 @@ class EnrollmentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error enrolling student'
+                'message' => 'Unable to complete enrollment. Please ensure you have selected valid subjects and try again.'
             ], 422);
         }
     }

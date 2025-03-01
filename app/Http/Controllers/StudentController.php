@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student\Students;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -19,8 +20,15 @@ class StudentController extends Controller
             $validated = $request->validate([
                 'student_id' => 'required|unique:students',
                 'name' => 'required',
-                'email' => 'required|email|unique:students',
+                'email' => [
+                    'required',
+                    'email',
+                    'unique:students',
+                    'regex:/^[a-zA-Z0-9._%+-]+@student\.buksu\.edu\.ph$/'
+                ],
                 'status' => 'required|in:active,inactive'
+            ], [
+                'email.regex' => 'The email must be a valid BukSU student email address (@student.buksu.edu.ph)'
             ]);
 
             Students::create($validated);
@@ -32,7 +40,7 @@ class StudentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error adding student. ' . $e->getMessage()
+                'message' => $e->getMessage()
             ], 422);
         }
     }
@@ -74,7 +82,15 @@ class StudentController extends Controller
     public function destroy(Students $student)
     {
         try {
+            // Find and delete the associated user account
+            $user = User::where('email', $student->email)->first();
+            if ($user) {
+                $user->delete();
+            }
+
+            // Delete the student record
             $student->delete();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Student deleted successfully!'
@@ -82,7 +98,7 @@ class StudentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error deleting student. ' . $e->getMessage()
+                'message' => 'Error deleting student: ' . $e->getMessage()
             ], 422);
         }
     }

@@ -99,11 +99,13 @@
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                               id="email" name="email" value="{{ old('email') }}" required>
-                        @error('email')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="emailPrefix" name="emailPrefix" 
+                                   placeholder="Enter student email prefix" required>
+                            <span class="input-group-text">@student.buksu.edu.ph</span>
+                        </div>
+                        <input type="hidden" id="fullEmail" name="email">
+                        <small class="form-text text-muted">Enter only the first part of the email address</small>
                     </div>
                     <div class="mb-3">
                         <label for="status" class="form-label">Status</label>
@@ -187,12 +189,12 @@
 function confirmDelete(formId) {
     Swal.fire({
         title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+        text: "This will permanently delete the student and prevent them from logging in. This action cannot be undone!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#7f1d1d',
         cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonText: 'Yes, delete student!'
     }).then((result) => {
         if (result.isConfirmed) {
             const form = document.getElementById(formId);
@@ -237,50 +239,37 @@ function confirmDelete(formId) {
 
 @push('scripts')
 <script>
-// Add Student Form Handler
-document.getElementById('addStudentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const submitButton = this.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
+function updateEmail(prefix) {
+    const suffix = '@student.buksu.edu.ph';
+    const fullEmail = prefix + suffix;
+    document.getElementById('fullEmail').value = fullEmail;
+}
+
+// Update form submission validation
+function validateStudentForm() {
+    const emailPrefix = document.getElementById('emailPrefix').value;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+$/;
     
-    fetch(this.action, {
-        method: 'POST',
-        body: new FormData(this),
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: data.message,
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                location.reload();
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message || 'Error adding student'
-            });
-        }
-    })
-    .catch(error => {
+    if (!emailRegex.test(emailPrefix)) {
         Swal.fire({
             icon: 'error',
-            title: 'Error',
-            text: 'Error adding student'
+            title: 'Invalid Email',
+            text: 'Please enter a valid email prefix'
         });
-    })
-    .finally(() => {
-        submitButton.disabled = false;
-    });
-});
+        return false;
+    }
+    
+    updateEmail(emailPrefix);
+    return true;
+}
+
+// Update your existing addStudent function
+function addStudent() {
+    if (!validateStudentForm()) {
+        return;
+    }
+    // Rest of your existing addStudent function code
+}
 
 function editStudent(id, studentId, name, email, status) {
     // Set form action
@@ -297,101 +286,6 @@ function editStudent(id, studentId, name, email, status) {
     const editModal = new bootstrap.Modal(document.getElementById('editStudentModal'));
     editModal.show();
 }
-
-// Your existing delete confirmation function
-function confirmDelete(formId) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#7f1d1d',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const form = document.getElementById(formId);
-            
-            fetch(form.action, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Deleted!',
-                        text: data.message,
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message
-                    });
-                }
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error deleting student'
-                });
-            });
-        }
-    });
-}
-
-document.getElementById('editStudentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const submitButton = this.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-    
-    fetch(this.action, {
-        method: 'POST',
-        body: new FormData(this),
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: data.message,
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                location.reload();
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message || 'Error updating student'
-            });
-        }
-    })
-    .catch(error => {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Error updating student'
-        });
-    })
-    .finally(() => {
-        submitButton.disabled = false;
-    });
-});
 
 // Initialize DataTables
 $(document).ready(function() {
@@ -419,6 +313,68 @@ $(document).ready(function() {
     // Custom search functionality
     $('#customSearch').on('keyup', function() {
         studentsTable.search(this.value).draw();
+    });
+});
+
+document.getElementById('addStudentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const emailPrefix = document.getElementById('emailPrefix').value;
+    const fullEmail = emailPrefix + '@student.buksu.edu.ph';
+    document.getElementById('fullEmail').value = fullEmail;
+
+    // Validate email format
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@student\.buksu\.edu\.ph$/;
+    if (!emailRegex.test(fullEmail)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Email',
+            text: 'Please enter a valid BukSU student email address'
+        });
+        return;
+    }
+
+    // Submit form via AJAX
+    fetch(this.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            student_id: this.student_id.value,
+            name: this.name.value,
+            email: fullEmail,
+            status: this.status.value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: data.message,
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while adding the student'
+        });
     });
 });
 </script>
@@ -608,6 +564,22 @@ $(document).ready(function() {
     /* Add space between buttons */
     td .btn + form {
         margin-left: 8px !important;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border-left: none;
+    }
+
+    .input-group .form-control:focus {
+        border-right: none;
+        box-shadow: none;
+    }
+
+    .form-text {
+        font-size: 0.875em;
+        color: #6c757d;
     }
 </style>
 
