@@ -76,4 +76,27 @@ class EnrollmentController extends Controller
         $student = Students::findOrFail($id);
         return response()->json($student->subjects->pluck('id'));
     }
+
+    public function unenroll(Students $student)
+    {
+        try {
+            // Delete all grades for the student's subjects
+            foreach ($student->grades as $grade) {
+                $grade->delete();
+            }
+
+            // Detach all subjects from the student
+            $student->subjects()->detach();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Student has been unenrolled successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error unenrolling student: ' . $e->getMessage()
+            ], 422);
+        }
+    }
 }

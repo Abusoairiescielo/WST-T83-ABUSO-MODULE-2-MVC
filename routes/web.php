@@ -55,6 +55,7 @@ Route::middleware(['auth', 'user.type:instructor'])->group(function () {
     Route::post('/enrollment/enroll', [EnrollmentController::class, 'enroll'])->name('enrollment.enroll');
     Route::post('/enrollment/subjects', [EnrollmentController::class, 'updateSubjects'])->name('enrollment.subjects');
     Route::get('/api/student/{id}/subjects', [EnrollmentController::class, 'getStudentSubjects']);
+    Route::post('/enrollment/unenroll/{student}', [EnrollmentController::class, 'unenroll'])->name('enrollment.unenroll');
 });
 
 require __DIR__.'/auth.php';

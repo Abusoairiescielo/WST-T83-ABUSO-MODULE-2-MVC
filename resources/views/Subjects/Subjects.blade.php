@@ -38,16 +38,16 @@
                                         <td>{{ $subject->units }}</td>
                                         <td>{{ $subject->schedule }}</td>
                                         <td>
-                                            <button class="btn bg-gradient-warning btn-sm" 
+                                            <button class="btn bg-gradient-warning btn-sm px-3" 
                                                     onclick="editSubject('{{ $subject->id }}', '{{ $subject->subject_code }}', '{{ $subject->name }}', '{{ $subject->description }}', '{{ $subject->units }}', '{{ $subject->schedule }}')">
-                                                <i class="fas fa-edit"></i> Edit
+                                                <i class="fas fa-edit me-2"></i>Edit
                                             </button>
                                             <form id="delete-form-{{ $subject->id }}" action="{{ route('subjects.destroy', $subject) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" class="btn bg-gradient-danger btn-sm" 
+                                                <button type="button" class="btn bg-gradient-danger btn-sm px-3" 
                                                         onclick="confirmDelete('delete-form-{{ $subject->id }}')">
-                                                    <i class="fas fa-trash"></i> Delete
+                                                    <i class="fas fa-trash me-2"></i>Delete
                                                 </button>
                                             </form>
                                         </td>
@@ -373,24 +373,28 @@ document.getElementById('editSubjectForm').addEventListener('submit', function(e
 
     /* Small Button Variants */
     .btn-sm {
-        padding: 0.6rem 1.2rem;
+        padding: 0.5rem 1rem;
         font-size: 0.875rem;
-        gap: 0.5rem;
+        line-height: 1.5;
     }
 
     /* Icon Styling */
     .btn i {
-        font-size: 1.1rem;
-        margin-right: 0.5rem;
-        color: var(--dark);
-        transition: all 0.3s ease;
+        font-size: 0.875rem;
     }
 
-    /* Add spacing between action buttons */
-    td .btn + .btn,
-    td .btn + form,
-    td form + .btn {
+    /* Add spacing between buttons */
+    td .btn + form {
         margin-left: 0.5rem;
+    }
+
+    .px-3 {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .me-2 {
+        margin-right: 0.5rem !important;
     }
 
     /* Card header styling */

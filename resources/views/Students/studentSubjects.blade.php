@@ -19,7 +19,7 @@
                             <thead>
                                 <tr>
                                     <th>Subject Code</th>
-                                    <th>Subject Name</th>
+                                    <th class="text-start">Subject Name</th>
                                     <th>Units</th>
                                     <th>Schedule</th>
                                     <th>Description</th>
@@ -29,7 +29,7 @@
                                 @foreach($student->subjects as $subject)
                                 <tr>
                                     <td>{{ $subject->subject_code }}</td>
-                                    <td>{{ $subject->name }}</td>
+                                    <td class="text-start">{{ $subject->name }}</td>
                                     <td>{{ $subject->units }}</td>
                                     <td>{{ $subject->schedule ?? 'TBA' }}</td>
                                     <td>{{ $subject->description }}</td>

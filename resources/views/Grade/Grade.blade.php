@@ -56,6 +56,12 @@
                                                             onclick="manageGrades({{ $student->id }}, {{ $subject->id }}, '{{ $grade ? $grade->midterm : '' }}', '{{ $grade ? $grade->finals : '' }}')">
                                                         {{ $grade ? 'Edit' : 'Add' }} Grades
                                                     </button>
+                                                    @if($grade)
+                                                        <button type="button" class="btn bg-gradient-danger btn-sm" 
+                                                                onclick="confirmDelete('{{ route('grades.destroy', $grade->id) }}')">
+                                                            <i class="fas fa-trash-alt"></i>&nbsp;Delete
+                                                        </button>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -158,6 +164,55 @@ document.getElementById('gradeForm').addEventListener('submit', function(e) {
         submitButton.disabled = false;
     });
 });
+
+function confirmDelete(deleteUrl) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#800000',  // Maroon
+        cancelButtonColor: '#6B7280',   // Gray
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+        buttonsStyling: true,
+        customClass: {
+            confirmButton: 'swal2-confirm',
+            cancelButton: 'swal2-cancel'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(deleteUrl, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
+                }
+            });
+        }
+    });
+}
 </script>
 @endpush
 
@@ -203,6 +258,37 @@ document.getElementById('gradeForm').addEventListener('submit', function(e) {
     /* Card header background */
     .card-header {
         background: linear-gradient(310deg, #4C1D95, #5B21B6);
+    }
+
+    /* Danger Button (Delete) */
+    .btn.bg-gradient-danger {
+        background: linear-gradient(310deg, #dc2626, #ef4444);
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn.bg-gradient-danger:hover {
+        background: linear-gradient(310deg, #ef4444, #dc2626);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    /* Add spacing between action buttons */
+    td .btn + form,
+    td form + .btn {
+        margin-left: 0.5rem;
+    }
+
+    /* Add this style to override SweetAlert2 default styles */
+    .swal2-confirm {
+        background-color: #800000 !important;
+        border-color: #800000 !important;
+    }
+
+    .swal2-confirm:hover {
+        background-color: #600000 !important;
+        border-color: #600000 !important;
     }
 </style>
 

@@ -139,6 +139,8 @@
         transition: all 0.3s ease;
     }
      .user-name-display {
+        display: flex;
+        align-items: center;
         color: #344767;
         padding: 0;
         cursor: default;
@@ -246,6 +248,52 @@
     /* Add this to your existing styles */
     .page-header-text {
         font-weight: 500 !important;
+    }
+
+    /* Table content alignment */
+    .table thead th {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
+    .table tbody td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
+    /* Keep action buttons centered */
+    .table td .btn-group,
+    .table td .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Keep badges centered and properly spaced */
+    .table td .badge {
+        margin: 0.25rem;
+        display: inline-block;
+    }
+
+    /* Exception for specific columns that should remain left-aligned (like descriptions) */
+    .table td.text-start,
+    .table th.text-start {
+        text-align: left !important;
+    }
+
+    .avatar {
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .avatar:hover {
+        transform: scale(1.05);
+        transition: all 0.3s ease;
+    }
+
+    .avatar-sm {
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
   </style>
 </head>
@@ -419,13 +467,12 @@
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
           <div class="ms-md-auto pe-md-3 d-flex align-items-center"></div>
           <ul class="navbar-nav justify-content-end">
-           
             <li class="nav-item pe-2 d-flex align-items-center">
               <span class="user-name-display">
-                  <i class="fa fa-user"></i>
-                  {{Auth::user()->name}}
+                <i class="fa fa-user me-sm-1" style="color: #344767;"></i>
+                {{Auth::user()->name}}
               </span>
-          </li>
+            </li>
             <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
                 <div class="sidenav-toggler-inner">

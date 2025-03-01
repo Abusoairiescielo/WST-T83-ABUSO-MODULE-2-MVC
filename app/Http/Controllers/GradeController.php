@@ -58,6 +58,24 @@ class GradeController extends Controller
         }
     }
 
+    public function destroy($id)
+    {
+        try {
+            $grade = Grades::findOrFail($id);
+            $grade->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Grade deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting grade: ' . $e->getMessage()
+            ]);
+        }
+    }
+
     private function convertToGradePoint($percentage)
     {
         if ($percentage >= 97) return 1.00;

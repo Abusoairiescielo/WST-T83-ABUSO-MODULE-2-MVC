@@ -45,16 +45,16 @@
                                         <td>{{ $student->email }}</td>
                                         <td>{{ $student->status }}</td>
                                         <td>
-                                            <a class="btn bg-gradient-warning btn-sm" 
+                                            <a class="btn bg-gradient-warning btn-sm" style="min-width: 85px; padding: 6px 12px;" 
                                                onclick="editStudent('{{ $student->id }}', '{{ $student->student_id }}', '{{ $student->name }}', '{{ $student->email }}', '{{ $student->status }}')">
-                                                <i class="fas fa-edit"></i> Edit
+                                                <i class="fas fa-edit me-2"></i>Edit
                                             </a>
-                                            <form id="delete-form-{{ $student->id }}" action="{{ route('students.destroy', $student) }}" method="POST" class="d-inline">
+                                            <form id="delete-form-{{ $student->id }}" action="{{ route('students.destroy', $student) }}" method="POST" class="d-inline ms-2">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" class="btn bg-gradient-danger btn-sm" 
+                                                <button type="button" class="btn bg-gradient-danger btn-sm" style="min-width: 85px; padding: 6px 12px;"
                                                         onclick="confirmDelete('delete-form-{{ $student->id }}')">
-                                                    <i class="fas fa-trash"></i> Delete
+                                                    <i class="fas fa-trash me-2"></i>Delete
                                                 </button>
                                             </form>
                                         </td>
@@ -593,6 +593,21 @@ $(document).ready(function() {
     /* Card header background */
     .card-header {
         background: linear-gradient(310deg, #4C1D95, #5B21B6);
+    }
+
+    .btn-sm {
+        padding: 8px 18px !important;  /* Increase padding */
+        font-size: 14px !important;    /* Adjust font size */
+        min-width: 100px !important;   /* Set minimum width */
+    }
+
+    .btn-sm i {
+        margin-right: 8px !important;  /* Space between icon and text */
+    }
+
+    /* Add space between buttons */
+    td .btn + form {
+        margin-left: 8px !important;
     }
 </style>
 

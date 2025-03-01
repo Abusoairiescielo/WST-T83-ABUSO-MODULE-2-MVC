@@ -79,8 +79,11 @@
                                             @endforeach
                                         </td>
                                         <td>
-                                            <button class="btn bg-gradient-primary btn-sm" onclick="manageSubjects({{ $student->id }})">
-                                                Manage Subjects
+                                            <button class="btn bg-gradient-warning btn-sm" onclick="manageSubjects({{ $student->id }})">
+                                                <i class="fas fa-book me-2"></i>Manage Subjects
+                                            </button>
+                                            <button class="btn bg-gradient-danger btn-sm ms-2" onclick="unenrollStudent({{ $student->id }})">
+                                                <i class="fas fa-user-minus me-2"></i>Unenroll
                                             </button>
                                         </td>
                                     </tr>
@@ -250,6 +253,35 @@
     .card-header {
         background: linear-gradient(310deg, #4C1D95, #5B21B6);
     }
+
+    /* Danger Button (Unenroll) */
+    .btn.bg-gradient-danger {
+        background: linear-gradient(310deg, #dc2626, #ef4444);
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn.bg-gradient-danger:hover {
+        background: linear-gradient(310deg, #ef4444, #dc2626);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    /* Button spacing */
+    .ms-2 {
+        margin-left: 0.5rem !important;
+    }
+
+    /* Icon spacing */
+    .me-2 {
+        margin-right: 0.5rem !important;
+    }
+
+    /* Keep icon colors white */
+    .btn i {
+        color: white;
+    }
 </style>
 
 @endsection
@@ -383,6 +415,69 @@ document.getElementById('subjectForm').addEventListener('submit', function(e) {
         submitButton.disabled = false;
     });
 });
+
+function unenrollStudent(studentId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This will unenroll the student from all subjects!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#800000',  // Maroon color
+        cancelButtonColor: '#6B7280',   // Gray color
+        confirmButtonText: 'Yes, unenroll!',
+        cancelButtonText: 'Cancel',
+        buttonsStyling: true,
+        customClass: {
+            confirmButton: 'swal2-confirm',
+            cancelButton: 'swal2-cancel'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Disable the button to prevent double submission
+            const button = event.target.closest('button');
+            button.disabled = true;
+            
+            fetch(`/enrollment/unenroll/${studentId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while unenrolling the student'
+                });
+            })
+            .finally(() => {
+                button.disabled = false;
+            });
+        }
+    });
+}
 
 $(document).ready(function() {
     // Initialize Available Students DataTable
