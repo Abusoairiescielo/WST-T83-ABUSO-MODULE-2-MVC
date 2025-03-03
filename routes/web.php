@@ -48,7 +48,7 @@ Route::middleware(['auth', 'user.type:instructor'])->group(function () {
     Route::get('/grades', [GradeController::class, 'index'])->name('grades.index');
     Route::post('/grades', [GradeController::class, 'store'])->name('grades.store');
     Route::put('/grades/{grade}', [GradeController::class, 'update'])->name('grades.update');
-    Route::delete('/grades/{grade}', [GradeController::class, 'destroy'])->name('grades.destroy');
+    Route::delete('/grades/{student}/{subject}', [GradeController::class, 'destroy'])->name('grades.destroy');
     
     // Enrollment routes
     Route::get('/enrollment', [EnrollmentController::class, 'index'])->name('enrollment.index');

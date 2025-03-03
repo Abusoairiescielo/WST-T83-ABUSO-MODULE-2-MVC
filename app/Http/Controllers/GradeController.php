@@ -58,10 +58,12 @@ class GradeController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy($student_id, $subject_id)
     {
         try {
-            $grade = Grades::findOrFail($id);
+            $grade = Grades::where('student_id', $student_id)
+                          ->where('subject_id', $subject_id)
+                          ->firstOrFail();
             $grade->delete();
             
             return response()->json([

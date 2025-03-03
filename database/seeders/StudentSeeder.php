@@ -24,20 +24,17 @@ class StudentSeeder extends Seeder
             'user_type' => 'instructor',
         ]);
 
-        $courses = ['BSIT', 'BSCS', 'BSIS'];
-        $years = ['1st', '2nd', '3rd', '4th'];
-
         for ($i = 1; $i <= 50; $i++) {
             try {
                 $firstName = fake()->firstName;
                 $lastName = fake()->lastName;
                 $name = $firstName . ' ' . $lastName;
                 
-                // Generate student ID with proper format
+                // Generate student ID with proper format (2024 + 6 digits)
                 $studentId = '2024' . str_pad($i, 6, '0', STR_PAD_LEFT);
                 
-                // Create clean email
-                $emailPrefix = Str::slug($firstName . '.' . $lastName, '.');
+                // Create clean email (firstname.lastname@student.buksu.edu.ph)
+                $emailPrefix = Str::lower(Str::slug($firstName . '.' . $lastName, '.'));
                 $email = $emailPrefix . '@student.buksu.edu.ph';
                 
                 // Create student record
@@ -45,8 +42,6 @@ class StudentSeeder extends Seeder
                     'student_id' => $studentId,
                     'name' => $name,
                     'email' => $email,
-                    'course' => $courses[array_rand($courses)],
-                    'year' => $years[array_rand($years)],
                     'status' => 'active'
                 ]);
 
@@ -57,9 +52,9 @@ class StudentSeeder extends Seeder
                     'password' => Hash::make('password'),
                     'user_type' => 'student'
                 ]);
-
             } catch (\Exception $e) {
-                \Log::error("Error seeding student $name: " . $e->getMessage());
+                // Log error and continue with next iteration
+                \Log::error("Error seeding student {$i}: " . $e->getMessage());
                 continue;
             }
         }

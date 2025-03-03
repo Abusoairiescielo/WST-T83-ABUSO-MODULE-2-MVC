@@ -27,14 +27,12 @@
                 </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive">
-                            <table class="table">
+                            <table id="studentsTable" class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th>Student ID</th>
                                         <th>Name</th>
                                         <th>Email</th>
-                                        <th>Course</th>
-                                        <th>Year</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -45,24 +43,24 @@
                                         <td>{{ $student->student_id }}</td>
                                         <td>{{ $student->name }}</td>
                                         <td>{{ $student->email }}</td>
-                                        <td>{{ $student->course }}</td>
-                                        <td>{{ $student->year }}</td>
                                         <td>
                                             <span class="badge {{ $student->status === 'active' ? 'bg-success' : 'bg-danger' }}">
                                                 {{ $student->status }}
                                             </span>
                                         </td>
                                         <td>
-                                            <a class="btn bg-gradient-warning btn-sm" style="min-width: 85px; padding: 6px 12px;" 
-                                               onclick="editStudent('{{ $student->id }}', '{{ $student->student_id }}', '{{ $student->name }}', '{{ $student->email }}', '{{ $student->status }}')">
-                                                <i class="fas fa-edit me-2"></i>Edit
-                                            </a>
-                                            <form id="delete-form-{{ $student->id }}" action="{{ route('students.destroy', $student) }}" method="POST" class="d-inline ms-2">
+                                            <button class="btn bg-gradient-warning btn-icon" 
+                                                    onclick="editStudent('{{ $student->id }}', '{{ $student->student_id }}', '{{ $student->name }}', '{{ $student->email }}', '{{ $student->status }}')"
+                                                    title="Edit Student">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <form id="delete-form-{{ $student->id }}" action="{{ route('students.destroy', $student) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" class="btn bg-gradient-danger btn-sm" style="min-width: 85px; padding: 6px 12px;"
-                                                        onclick="confirmDelete('delete-form-{{ $student->id }}')">
-                                                    <i class="fas fa-trash me-2"></i>Delete
+                                                <button type="button" class="btn bg-gradient-danger btn-icon"
+                                                        onclick="confirmDelete('delete-form-{{ $student->id }}')"
+                                                        title="Delete Student">
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
                                         </td>
@@ -124,8 +122,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn bg-gradient-primary">Add Student</button>
+                    <button type="button" class="btn btn-secondary btn-icon" data-bs-dismiss="modal" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button type="submit" class="btn bg-gradient-primary btn-icon" title="Add Student">
+                        <i class="fas fa-plus"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -168,8 +170,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn bg-gradient-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary btn-icon" data-bs-dismiss="modal" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button type="submit" class="btn bg-gradient-primary btn-icon" title="Save Changes">
+                        <i class="fas fa-save"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -315,7 +321,25 @@ $(document).ready(function() {
                 next: '<i class="fas fa-angle-right"></i>',
                 last: '<i class="fas fa-angle-double-right"></i>'
             }
-        }
+        },
+        columnDefs: [
+            {
+                targets: -1, // Last column (Actions)
+                orderable: false,
+                searchable: false
+            },
+            {
+                targets: 3, // Updated Status column index (was 5 before)
+                orderable: true,
+                searchable: true,
+                render: function(data, type, row) {
+                    if(type === 'display') {
+                        return row[3]; // Updated index to match new column position
+                    }
+                    return $(row[3]).text(); // Updated index to match new column position
+                }
+            }
+        ]
     });
 
     // Custom search functionality
@@ -385,6 +409,47 @@ document.getElementById('addStudentForm').addEventListener('submit', function(e)
         });
     });
 });
+
+// Add this new code after your existing scripts
+document.getElementById('editStudentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    fetch(this.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        },
+        body: new FormData(this)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: data.message,
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Error updating student'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while updating the student'
+        });
+    });
+});
 </script>
 @endpush
 
@@ -411,8 +476,8 @@ document.getElementById('addStudentForm').addEventListener('submit', function(e)
         margin-right: 0.5rem;
     }
 
-    /* DataTables Custom Styling */
-    .dataTables_wrapper {
+       /* DataTables Custom Styling */
+       .dataTables_wrapper {
         padding: 20px;
     }
 
@@ -588,6 +653,52 @@ document.getElementById('addStudentForm').addEventListener('submit', function(e)
     .form-text {
         font-size: 0.875em;
         color: #6c757d;
+    }
+
+    /* Icon-only button styles */
+    .btn-icon {
+        width: 32px !important;
+        height: 32px !important;
+        padding: 0 !important;
+        min-width: unset !important;
+        border-radius: 8px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 4px !important;
+    }
+
+    .btn-icon i {
+        font-size: 14px !important;
+        margin: 0 !important;
+        line-height: 1 !important;
+    }
+
+    /* Remove hover transform effects */
+    .btn-icon:hover,
+    .btn-icon:focus,
+    .btn-icon:active {
+        transform: none !important;
+    }
+
+    /* Modal footer button styles */
+    .modal-footer .btn-icon {
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+    .modal-footer .btn-icon i {
+        font-size: 16px !important;
+    }
+
+    /* Secondary button style */
+    .btn.btn-secondary.btn-icon {
+        background: #6B7280 !important;
+        color: white !important;
+    }
+
+    .btn.btn-secondary.btn-icon:hover {
+        background: #4B5563 !important;
     }
 </style>
 

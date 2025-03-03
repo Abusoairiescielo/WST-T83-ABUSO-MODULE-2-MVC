@@ -36,8 +36,8 @@
                                         <td>{{ $student->name }}</td>
                                         <td>{{ $student->email }}</td>
                                         <td>
-                                            <button class="btn bg-gradient-warning btn-sm" onclick="enrollStudent({{ $student->id }})">
-                                                Enroll
+                                            <button class="btn bg-gradient-warning btn-sm" onclick="enrollStudent({{ $student->id }})" title="Enroll Student">
+                                                <i class="fas fa-user-plus"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -78,13 +78,15 @@
                                                 <span class="badge bg-primary">{{ $subject->name }}</span>
                                             @endforeach
                                         </td>
-                                        <td>
-                                            <button class="btn bg-gradient-warning btn-sm" onclick="manageSubjects({{ $student->id }})">
-                                                <i class="fas fa-book me-2"></i>Manage Subjects
-                                            </button>
-                                            <button class="btn bg-gradient-danger btn-sm ms-2" onclick="unenrollStudent({{ $student->id }})">
-                                                <i class="fas fa-user-minus me-2"></i>Unenroll
-                                            </button>
+                                        <td class="text-end">
+                                            <div class="btn-group">
+                                                <button class="btn bg-gradient-warning btn-icon me-2" onclick="manageSubjects({{ $student->id }})" title="Manage Subjects">
+                                                    <i class="fas fa-book"></i>
+                                                </button>
+                                                <button class="btn bg-gradient-danger btn-icon" onclick="unenrollStudent({{ $student->id }})" title="Unenroll Student">
+                                                    <i class="fas fa-user-minus"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -124,8 +126,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn bg-light" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn bg-gradient-warning">Confirm</button>
+                    <button type="button" class="btn btn-secondary btn-icon" data-bs-dismiss="modal" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button type="submit" class="btn bg-gradient-primary btn-icon" title="Save Changes">
+                        <i class="fas fa-save"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -137,7 +143,10 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Enroll Student</h5>
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Enroll Student
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="enrollmentForm" action="{{ route('enrollment.enroll') }}" method="POST">
@@ -158,8 +167,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn bg-light" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn bg-gradient-warning">Enroll</button>
+                    <button type="button" class="btn bg-light" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2" style="color: #344767;"></i>
+                    </button>
+                    <button type="submit" class="btn bg-gradient-warning">
+                        <i class="fas fa-user-plus me-2"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -281,6 +294,154 @@
     /* Keep icon colors white */
     .btn i {
         color: white;
+    }
+
+    /* Icon Button Styling */
+    .btn.btn-sm {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn.btn-sm i {
+        font-size: 14px;
+    }
+
+    /* Modal Header Styling */
+    .modal-header {
+        background: linear-gradient(310deg, #4C1D95, #5B21B6);
+        color: white;
+    }
+
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+
+    .modal-title i {
+        color: white;
+    }
+
+    /* Light button icon color */
+    .btn.bg-light i {
+        color: #344767;
+    }
+
+    .btn.bg-light:hover i {
+        color: #344767;
+    }
+
+    /* Action buttons container */
+    td .btn-icon + .btn-icon {
+        margin-left: 8px;
+    }
+
+    /* Hover effects for action buttons */
+    .btn-icon.bg-gradient-warning:hover {
+        background: linear-gradient(310deg, #5B21B6, #4C1D95);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+    }
+
+    .btn-icon.bg-gradient-danger:hover {
+        background: linear-gradient(310deg, #ef4444, #dc2626);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    /* Ensure icons are centered */
+    .btn-icon i {
+        margin: 0 !important;
+        font-size: 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Base button styles */
+    .btn {
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    /* Icon button specific styles */
+    .btn-icon {
+        width: 32px !important;
+        height: 32px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Remove transform effects */
+    .btn:hover,
+    .btn:focus,
+    .btn:active,
+    .btn-icon:hover,
+    .btn-icon:focus,
+    .btn-icon:active {
+        transform: none !important;
+    }
+
+    /* Warning/Primary button (violet theme) */
+    .btn.bg-gradient-warning,
+    .btn.bg-gradient-primary {
+        background: linear-gradient(310deg, #4C1D95, #5B21B6) !important;
+        color: white !important;
+    }
+
+    .btn.bg-gradient-warning:hover,
+    .btn.bg-gradient-primary:hover {
+        background: linear-gradient(310deg, #5B21B6, #4C1D95) !important;
+        box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3) !important;
+    }
+
+    /* Danger button */
+    .btn.bg-gradient-danger {
+        background: linear-gradient(310deg, #dc2626, #ef4444) !important;
+        color: white !important;
+    }
+
+    .btn.bg-gradient-danger:hover {
+        background: linear-gradient(310deg, #ef4444, #dc2626) !important;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+    }
+
+    /* Secondary button */
+    .btn.btn-secondary {
+        background: #6B7280 !important;
+        color: white !important;
+    }
+
+    .btn.btn-secondary:hover {
+        background: #4B5563 !important;
+        box-shadow: 0 4px 12px rgba(75, 85, 99, 0.3) !important;
+    }
+
+    /* Icon styles */
+    .btn i {
+        font-size: 14px !important;
+        margin: 0 !important;
+    }
+
+    /* Button group styling */
+    .btn-group {
+        display: inline-flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    /* Table cell alignment */
+    .text-end {
+        text-align: right !important;
+    }
+
+    /* Remove old button spacing */
+    td .btn-icon + .btn-icon {
+        margin-left: 0;
     }
 </style>
 
@@ -493,6 +654,10 @@ $(document).ready(function() {
         language: {
             search: "_INPUT_",
             searchPlaceholder: "Search students...",
+            paginate: {
+                previous: '<i class="fas fa-chevron-left"></i>',
+                next: '<i class="fas fa-chevron-right"></i>'
+            }
         }
     });
 
@@ -509,6 +674,10 @@ $(document).ready(function() {
         language: {
             search: "_INPUT_",
             searchPlaceholder: "Search enrolled students...",
+            paginate: {
+                previous: '<i class="fas fa-chevron-left"></i>',
+                next: '<i class="fas fa-chevron-right"></i>'
+            }
         }
     });
 });
@@ -556,28 +725,64 @@ $(document).ready(function() {
     padding-top: 10px;
 }
 
-.paginate_button {
-    padding: 5px 12px;
+/* Pagination Styling */
+.dataTables_wrapper .paginate_button {
+    padding: 8px 12px;
     margin: 0 2px;
     border-radius: 4px;
     border: 1px solid #ddd;
     background: white;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    transition: all 0.3s ease;
 }
 
-.paginate_button.current {
-    background: linear-gradient(310deg, #ea580c, #facc15);
-    color: white;
+.dataTables_wrapper .paginate_button.current {
+    background: linear-gradient(310deg, #4C1D95, #5B21B6);
+    color: white !important;
     border: none;
 }
 
-.paginate_button:hover:not(.current) {
-    background: #f5f5f5;
+/* Update the icon styles */
+.dataTables_wrapper .paginate_button i {
+    font-size: 16px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.paginate_button.disabled {
-    opacity: 0.5;
+/* Update the arrow button styles */
+.dataTables_wrapper .paginate_button.previous,
+.dataTables_wrapper .paginate_button.next {
+    padding: 0;
+    min-width: 38px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.dataTables_wrapper .paginate_button:hover:not(.current):not(.disabled) {
+    background: linear-gradient(310deg, #4C1D95, #5B21B6);
+    color: white !important;
+    border-color: transparent;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(76, 29, 149, 0.1);
+}
+
+.dataTables_wrapper .paginate_button.disabled {
+    background: #f5f5f5;
     cursor: not-allowed;
+    opacity: 0.6;
 }
 
 /* Table Styling */

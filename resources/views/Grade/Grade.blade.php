@@ -16,7 +16,7 @@
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
-                            <table class="table align-items-center mb-0">
+                            <table class="table align-items-center mb-0" id="gradesTable">
                                 <thead>
                                     <tr>
                                         <th>Student ID</th>
@@ -52,14 +52,16 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <button class="btn bg-gradient-warning btn-sm" 
+                                                    <button class="btn bg-gradient-warning btn-icon" 
+                                                            title="{{ $grade ? 'Edit' : 'Add' }} Grade"
                                                             onclick="manageGrades({{ $student->id }}, {{ $subject->id }}, '{{ $grade ? $grade->midterm : '' }}', '{{ $grade ? $grade->finals : '' }}')">
-                                                        {{ $grade ? 'Edit' : 'Add' }} Grades
+                                                        <i class="fas fa-pen"></i>
                                                     </button>
                                                     @if($grade)
-                                                        <button type="button" class="btn bg-gradient-danger btn-sm" 
-                                                                onclick="confirmDelete('{{ route('grades.destroy', $grade->id) }}')">
-                                                            <i class="fas fa-trash-alt"></i>&nbsp;Delete
+                                                        <button class="btn bg-gradient-danger btn-icon"
+                                                                title="Delete Grade"
+                                                                onclick="confirmDeleteGrade({{ $student->id }}, {{ $subject->id }})">
+                                                            <i class="fas fa-trash"></i>
                                                         </button>
                                                     @endif
                                                 </td>
@@ -101,15 +103,31 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn bg-light" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn bg-gradient-warning">Save Grades</button>
+                    <button type="button" class="btn btn-secondary btn-icon" data-bs-dismiss="modal" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button type="submit" class="btn bg-gradient-primary btn-icon" title="Save Changes">
+                        <i class="fas fa-save"></i>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+<!-- Add DataTables CSS and JS -->
+<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"></script>
+
 <script>
 function manageGrades(studentId, subjectId, midterm, finals) {
     document.getElementById('grade_student_id').value = studentId;
@@ -165,89 +183,206 @@ document.getElementById('gradeForm').addEventListener('submit', function(e) {
     });
 });
 
-function confirmDelete(deleteUrl) {
+function confirmDeleteGrade(studentId, subjectId) {
     Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#800000',  // Maroon
-        cancelButtonColor: '#6B7280',   // Gray
+        confirmButtonColor: '#4C1D95',
+        cancelButtonColor: '#6B7280',
         confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel',
-        buttonsStyling: true,
-        customClass: {
-            confirmButton: 'swal2-confirm',
-            cancelButton: 'swal2-cancel'
-        }
+        cancelButtonText: 'Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
+            const deleteUrl = `/grades/${studentId}/${subjectId}`;
             fetch(deleteUrl, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Accept': 'application/json'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Deleted!',
-                        text: data.message,
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => {
-                        window.location.reload();
-                    });
+            .then(async response => {
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message
-                    });
+                    if (response.ok) {
+                        return { success: true, message: 'Grade deleted successfully' };
+                    }
+                    throw new Error('Failed to delete grade');
                 }
+            })
+            .then(data => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted!',
+                    text: 'Grade has been deleted successfully.',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    location.reload();
+                });
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Error deleting grade'
+                });
             });
         }
     });
 }
+
+$(document).ready(function() {
+    const gradesTable = $('#gradesTable').DataTable({
+        dom: '<"row"<"col-md-6"l><"col-md-6"f>>' +
+             '<"row"<"col-12"tr>>' +
+             '<"row"<"col-md-5"i><"col-md-7"p>>',
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        order: [[0, 'asc']],
+        responsive: true,
+        pagingType: "simple_numbers",
+        language: {
+            search: "",
+            searchPlaceholder: "Search...",
+            paginate: {
+                first: '<i class="fas fa-angle-double-left"></i>',
+                previous: '<i class="fas fa-angle-left"></i>',
+                next: '<i class="fas fa-angle-right"></i>',
+                last: '<i class="fas fa-angle-double-right"></i>'
+            }
+        }
+    });
+
+    // Custom search functionality
+    $('#customSearch').on('keyup', function() {
+        gradesTable.search(this.value).draw();
+    });
+});
 </script>
 @endpush
 
 <style>
-    /* Warning Button (Edit/Add Grades) */
+    /* Base button styles */
+    .btn {
+        position: relative !important;
+        transform: none !important;
+        transition: none !important;
+        will-change: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Small button variant */
+    .btn-sm {
+        padding: 8px 18px !important;
+        font-size: 14px !important;
+        min-width: 100px !important;
+        height: 35px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        margin: 0.25rem !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    /* Icon button styles */
+    .btn-icon {
+        width: 32px !important;
+        height: 32px !important;
+        padding: 0 !important;
+        min-width: unset !important;
+        border-radius: 8px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 4px !important;
+    }
+
+    .btn-icon i {
+        font-size: 14px !important;
+        margin: 0 !important;
+    }
+
+    /* Remove any transform effects */
+    .btn-icon:hover,
+    .btn-icon:focus,
+    .btn-icon:active {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Warning/Edit button */
     .btn.bg-gradient-warning {
-        background: linear-gradient(310deg, #4C1D95, #5B21B6);
-        color: white;
-        border: none;
-        transition: all 0.3s ease;
+        background: linear-gradient(310deg, #4C1D95, #5B21B6) !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 
-    .btn.bg-gradient-warning:hover {
-        background: linear-gradient(310deg, #5B21B6, #4C1D95);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+    /* Danger/Delete button */
+    .btn.bg-gradient-danger {
+        background: linear-gradient(310deg, #dc2626, #ef4444) !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 
-    /* Save Grades Button */
-    .modal-footer .btn.bg-gradient-warning {
-        background: linear-gradient(310deg, #4C1D95, #5B21B6);
-        color: white;
-        border: none;
-        transition: all 0.3s ease;
+    /* Primary button (for modal) */
+    .btn.bg-gradient-primary {
+        background: linear-gradient(310deg, #4C1D95, #5B21B6) !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 
-    .modal-footer .btn.bg-gradient-warning:hover {
-        background: linear-gradient(310deg, #5B21B6, #4C1D95);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+    .btn.bg-gradient-primary:hover {
+        background: linear-gradient(310deg, #5B21B6, #4C1D95) !important;
+        box-shadow: none !important;
+        transform: none !important;
     }
 
-    /* Keep icon color white */
-    .btn.bg-gradient-warning i {
-        color: white;
+    /* Secondary button (for modal close) */
+    .btn.btn-secondary {
+        background: #6B7280 !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .btn.btn-secondary:hover {
+        background: #4B5563 !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+
+    /* Icon styles */
+    .btn i {
+        font-size: 0.875rem !important;
+        line-height: 1 !important;
+        width: auto !important;
+        height: auto !important;
+        transform: none !important;
+    }
+
+    /* Button spacing */
+    td .btn + .btn,
+    td .btn + form,
+    td form + .btn {
+        margin-left: 0.5rem !important;
+    }
+
+    /* Disable all hover effects */
+    .btn:hover,
+    .btn:focus,
+    .btn:active {
+        transform: none !important;
+        box-shadow: none !important;
     }
 
     /* Card header styling */
@@ -258,20 +393,6 @@ function confirmDelete(deleteUrl) {
     /* Card header background */
     .card-header {
         background: linear-gradient(310deg, #4C1D95, #5B21B6);
-    }
-
-    /* Danger Button (Delete) */
-    .btn.bg-gradient-danger {
-        background: linear-gradient(310deg, #dc2626, #ef4444);
-        color: white;
-        border: none;
-        transition: all 0.3s ease;
-    }
-
-    .btn.bg-gradient-danger:hover {
-        background: linear-gradient(310deg, #ef4444, #dc2626);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
     }
 
     /* Add spacing between action buttons */
@@ -289,6 +410,159 @@ function confirmDelete(deleteUrl) {
     .swal2-confirm:hover {
         background-color: #600000 !important;
         border-color: #600000 !important;
+    }
+
+    /* DataTables Custom Styling */
+    .dataTables_wrapper {
+        padding: 20px;
+    }
+
+    .dataTables_length {
+        margin-bottom: 15px;
+    }
+
+    .dataTables_length label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        font-size: 0.875rem;
+        white-space: nowrap;
+    }
+
+    .dataTables_length select {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 6px 30px 6px 10px;
+        margin: 0;
+        background-color: white;
+        height: 38px;
+        font-size: 0.875rem;
+        min-width: 80px;
+    }
+
+    .dataTables_wrapper .row:first-child {
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .dataTables_wrapper .col-md-6:first-child {
+        display: flex;
+        align-items: center;
+    }
+
+    .dataTables_info {
+        font-size: 0.875rem;
+        padding-top: 0.5rem;
+    }
+
+    .dataTables_paginate {
+        margin-top: 1rem;
+        text-align: right;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .paginate_button {
+        padding: 8px 12px;
+        margin: 0 2px;
+        border-radius: 4px;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        color: #333;
+    }
+
+    .paginate_button.current {
+        background: linear-gradient(310deg, #4C1D95, #5B21B6);
+        color: white;
+    }
+
+    .paginate_button:hover:not(.current) {
+        background: white !important;
+        color: #4C1D95;
+    }
+
+    .paginate_button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        color: #999;
+    }
+
+    /* Modal styling */
+    .modal-content {
+        border: none;
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: linear-gradient(310deg, #4C1D95, #5B21B6);
+        color: white;
+        border: none;
+        padding: 1.5rem;
+    }
+
+    .modal-title {
+        color: white;
+        font-weight: 500;
+    }
+
+    .modal-header .btn-close {
+        background-color: white;
+        opacity: 0.8;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+    }
+
+    .modal-footer .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Form styling */
+    .form-label {
+        color: #4B5563;
+        font-weight: 500;
+    }
+
+    .form-control {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .form-control:focus {
+        border-color: #4C1D95;
+        box-shadow: 0 0 0 2px rgba(76, 29, 149, 0.1);
+    }
+
+    /* Modal footer button styles */
+    .modal-footer .btn-icon {
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+    .modal-footer .btn-icon i {
+        font-size: 16px !important;
+    }
+
+    /* Secondary button style */
+    .btn.btn-secondary.btn-icon {
+        background: #6B7280 !important;
+        color: white !important;
+    }
+
+    .btn.btn-secondary.btn-icon:hover {
+        background: #4B5563 !important;
     }
 </style>
 

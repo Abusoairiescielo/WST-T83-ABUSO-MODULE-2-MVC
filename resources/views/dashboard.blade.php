@@ -54,16 +54,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Quick Action Buttons -->
-                        <div class="col-xl-6 col-sm-12 d-flex align-items-center justify-content-end">
-                            <button type="button" class="btn bg-gradient-primary me-3" data-bs-toggle="modal" data-bs-target="#addStudentModal">
-                                <i class="fas fa-user-plus"></i> Add New Student
-                            </button>
-                            <button type="button" class="btn bg-gradient-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
-                                <i class="fas fa-book"></i> Add New Subject
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -73,7 +63,7 @@
     <div class="row mt-4">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">Recent Students</h6>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
@@ -393,6 +383,45 @@ document.getElementById('addSubjectForm').addEventListener('submit', function(e)
 .modal-footer .btn.bg-gradient-primary:hover {
     transform: translateY(-1px);
     box-shadow: 0 3px 8px rgba(94, 114, 228, 0.2);
+}
+
+/* Icon-only button styles */
+.btn-icon {
+    width: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    min-width: unset !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 4px !important;
+}
+
+.btn-icon i {
+    font-size: 16px !important;
+    margin: 0 !important;
+}
+
+/* Remove margin bottom for quick action buttons */
+.col-xl-6 .btn-icon {
+    margin-bottom: 0 !important;
+}
+
+/* Secondary button style */
+.btn.btn-secondary.btn-icon {
+    background: #6B7280 !important;
+    color: white !important;
+}
+
+.btn.btn-secondary.btn-icon:hover {
+    background: #4B5563 !important;
+}
+
+/* Hover effects */
+.btn-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);
 }
 </style>
 @endsection

@@ -15,6 +15,12 @@
                         <div class="d-flex align-items-center">
                             <h6 class="mb-0">Subject Lists</h6>
                         </div>
+                        <button type="button" class="btn bg-gradient-primary btn-icon" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#addSubjectModal"
+                                title="Add New Subject">
+                            <i class="fas fa-book"></i>
+                        </button>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
@@ -38,16 +44,18 @@
                                         <td>{{ $subject->units }}</td>
                                         <td>{{ $subject->schedule }}</td>
                                         <td>
-                                            <button class="btn bg-gradient-warning btn-sm px-3" 
+                                            <button class="btn bg-gradient-warning btn-icon" 
+                                                    title="Edit Subject"
                                                     onclick="editSubject('{{ $subject->id }}', '{{ $subject->subject_code }}', '{{ $subject->name }}', '{{ $subject->description }}', '{{ $subject->units }}', '{{ $subject->schedule }}')">
-                                                <i class="fas fa-edit me-2"></i>Edit
+                                                <i class="fas fa-pen"></i>
                                             </button>
                                             <form id="delete-form-{{ $subject->id }}" action="{{ route('subjects.destroy', $subject) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" class="btn bg-gradient-danger btn-sm px-3" 
+                                                <button type="button" class="btn bg-gradient-danger btn-icon"
+                                                        title="Delete Subject"
                                                         onclick="confirmDelete('delete-form-{{ $subject->id }}')">
-                                                    <i class="fas fa-trash me-2"></i>Delete
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
                                         </td>
@@ -96,8 +104,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn bg-light" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn bg-gradient-primary">Add Subject</button>
+                    <button type="button" class="btn btn-secondary btn-icon" data-bs-dismiss="modal" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button type="submit" class="btn bg-gradient-primary btn-icon" title="Add Subject">
+                        <i class="fas fa-plus"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -138,8 +150,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn bg-light" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn bg-gradient-warning">Save Changes</button>
+                    <button type="button" class="btn btn-secondary btn-icon" data-bs-dismiss="modal" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button type="submit" class="btn bg-gradient-warning btn-icon" title="Save Changes">
+                        <i class="fas fa-save"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -411,6 +427,123 @@ document.getElementById('editSubjectForm').addEventListener('submit', function(e
     /* Add spacing and alignment */
     .card-header .d-flex {
         align-items: center;
+    }
+
+    /* Icon-only button styles */
+    .btn-icon {
+        width: 32px !important;
+        height: 32px !important;
+        padding: 0 !important;
+        min-width: unset !important;
+        border-radius: 8px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 4px !important;
+    }
+
+    .btn-icon i {
+        font-size: 14px !important;
+        margin: 0 !important;
+    }
+
+    /* Modal footer button styles */
+    .modal-footer .btn-icon {
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+    .modal-footer .btn-icon i {
+        font-size: 16px !important;
+    }
+
+    /* Secondary button style */
+    .btn.btn-secondary.btn-icon {
+        background: #6B7280 !important;
+        color: white !important;
+    }
+
+    .btn.btn-secondary.btn-icon:hover {
+        background: #4B5563 !important;
+    }
+
+    /* Modal styling */
+    .modal-content {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        background: linear-gradient(310deg, #4C1D95, #5B21B6);
+        color: white;
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+        border-bottom: none;
+        padding: 1.5rem;
+    }
+
+    .modal-title {
+        color: white;
+        font-weight: 500;
+    }
+
+    .modal-header .btn-close {
+        background-color: white;
+        opacity: 0.8;
+        padding: 0.5rem;
+        margin: 0;
+    }
+
+    .modal-header .btn-close:hover {
+        opacity: 1;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+    }
+
+    /* Form styling */
+    .form-label {
+        color: #4B5563;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #4C1D95;
+        box-shadow: 0 0 0 2px rgba(76, 29, 149, 0.1);
+    }
+
+    /* Primary button (Add/Save) - Violet theme */
+    .btn.bg-gradient-primary {
+        background: linear-gradient(310deg, #4C1D95, #5B21B6);
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn.bg-gradient-primary:hover {
+        background: linear-gradient(310deg, #5B21B6, #4C1D95);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+    }
+
+    /* Keep icon color white */
+    .btn.bg-gradient-primary i {
+        color: white;
     }
 </style>
 

@@ -25,11 +25,6 @@
   </title>
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800" rel="stylesheet" />
-  <!-- Nucleo Icons -->
-  <link href="https://demos.creative-tim.com/soft-ui-dashboard/assets/css/nucleo-icons.css" rel="stylesheet" />
-  <link href="https://demos.creative-tim.com/soft-ui-dashboard/assets/css/nucleo-svg.css" rel="stylesheet" />
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <!-- CSS Files -->
   <link id="pagestyle" href="../assets/css/soft-ui-dashboard.css?v=1.1.0" rel="stylesheet" />
   <!-- Nepcha Analytics (nepcha.com) -->
@@ -43,6 +38,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+ <!-- Icon action button -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* Sidebar background */
     .sidenav {
@@ -295,6 +292,77 @@
         border: 2px solid #fff;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+
+    /* Material Icons base styles */
+    .material-icons-round {
+        font-size: 20px !important;
+        width: 20px !important;
+        height: 20px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        vertical-align: middle !important;
+    }
+
+    /* Icon container styles */
+    .icon-shape .material-icons-round {
+        font-size: 16px !important;
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    /* Prevent icon scaling */
+    .btn .material-icons-round,
+    .nav-link .material-icons-round {
+        transform: none !important;
+        transition: none !important;
+    }
+
+    /* Nucleo Icons base styles */
+    .btn-sm .ni {
+        font-size: 0.875rem !important;
+        position: relative;
+        top: 2px;
+    }
+
+    /* Button icon spacing */
+    .btn-sm .ni {
+        margin-right: 0.5rem;
+    }
+
+    /* Prevent icon scaling */
+    .btn .ni,
+    .nav-link .ni {
+        transform: none !important;
+        transition: none !important;
+    }
+
+    /* Icon alignment in buttons */
+    .btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.35rem !important;
+    }
+
+    /* Profile Icon Styling */
+    .avatar-sm {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .avatar-sm:hover {
+        transform: scale(1.1);
+    }
+
+    .fa-user-circle {
+        font-size: 24px !important;
+    }
   </style>
 </head>
 
@@ -468,10 +536,12 @@
           <div class="ms-md-auto pe-md-3 d-flex align-items-center"></div>
           <ul class="navbar-nav justify-content-end">
             <li class="nav-item pe-2 d-flex align-items-center">
-              <span class="user-name-display">
-                <i class="fa fa-user me-sm-1" style="color: #344767;"></i>
-                {{Auth::user()->name}}
-              </span>
+              <div class="d-flex align-items-center">
+                <div class="avatar avatar-sm position-relative">
+                  <i class="fas fa-user-circle fa-2x" style="color: #344767;"></i>
+                </div>
+              </div>
+              {{Auth::user()->name}}
             </li>
             <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">

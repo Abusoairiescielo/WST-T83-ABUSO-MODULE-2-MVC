@@ -31,8 +31,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn bg-light" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn bg-gradient-primary">Add Subject</button>
+                    <button type="button" class="btn btn-secondary btn-icon" data-bs-dismiss="modal" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button type="submit" class="btn bg-gradient-primary btn-icon" title="Add Subject">
+                        <i class="fas fa-plus"></i>
+                    </button>
                 </div>
             </form>
         </div>
