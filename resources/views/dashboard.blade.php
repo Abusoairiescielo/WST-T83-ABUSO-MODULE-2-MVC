@@ -109,58 +109,11 @@
     </div>
 </div>
 
-<!-- Add Student Modal -->
-@include('Students.partials.add-student-modal')
-
 <!-- Add Subject Modal -->
 @include('Subjects.partials.add-subject-modal')
 
 @push('scripts')
 <script>
-// Add Student Form Handler
-document.getElementById('addStudentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const submitButton = this.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-    
-    fetch(this.action, {
-        method: 'POST',
-        body: new FormData(this),
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: data.message,
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                window.location.href = '{{ route("students.index") }}';
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message || 'Error adding student'
-            });
-        }
-    })
-    .catch(error => {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Error adding student'
-        });
-    })
-    .finally(() => {
-        submitButton.disabled = false;
-    });
-});
 
 // Add Subject Form Handler
 document.getElementById('addSubjectForm').addEventListener('submit', function(e) {

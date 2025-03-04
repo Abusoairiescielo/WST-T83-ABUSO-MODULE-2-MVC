@@ -21,10 +21,10 @@
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-4 d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center">
-                        <h6 class="mb-0">Student Lists</h6>
+                        <div class="d-flex align-items-center">
+                            <h6 class="mb-0">Student Lists</h6>
+                        </div>
                     </div>
-                </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive">
                             <table id="studentsTable" class="table table-striped">
@@ -262,7 +262,7 @@ function updateEmail(prefix) {
 // Update form submission validation
 function validateStudentForm() {
     const emailPrefix = document.getElementById('emailPrefix').value;
-    const emailRegex = /^[a-zA-Z0-9._%+-]+$/;
+    const emailRegex = /^[0-9a-zA-Z._%+-]+@student\.buksu\.edu\.ph$/;
     
     if (!emailRegex.test(emailPrefix)) {
         Swal.fire({
@@ -351,20 +351,26 @@ $(document).ready(function() {
 document.getElementById('addStudentForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
+    // Get form values
+    const studentId = document.getElementById('student_id').value;
+    const name = document.getElementById('name').value;
     const emailPrefix = document.getElementById('emailPrefix').value;
-    const fullEmail = emailPrefix + '@student.buksu.edu.ph';
-    document.getElementById('fullEmail').value = fullEmail;
+    const status = document.getElementById('status').value;
 
-    // Validate email format
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@student\.buksu\.edu\.ph$/;
-    if (!emailRegex.test(fullEmail)) {
+    // Validate student number format
+    const studentNumberRegex = /^[0-9]{10}$/;  // Exactly 10 digits
+    if (!studentNumberRegex.test(emailPrefix)) {
         Swal.fire({
             icon: 'error',
-            title: 'Invalid Email',
-            text: 'Please enter a valid BukSU student email address'
+            title: 'Invalid Student Number',
+            text: 'Please enter your 10-digit student number (e.g., 2201101589)'
         });
         return;
     }
+
+    // Create full email
+    const fullEmail = emailPrefix + '@student.buksu.edu.ph';
+    document.getElementById('fullEmail').value = fullEmail;
 
     // Submit form via AJAX
     fetch(this.action, {
@@ -375,10 +381,10 @@ document.getElementById('addStudentForm').addEventListener('submit', function(e)
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            student_id: this.student_id.value,
-            name: this.name.value,
+            student_id: studentId,
+            name: name,
             email: fullEmail,
-            status: this.status.value
+            status: status
         })
     })
     .then(response => response.json())
@@ -402,6 +408,7 @@ document.getElementById('addStudentForm').addEventListener('submit', function(e)
         }
     })
     .catch(error => {
+        console.error('Error:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',
@@ -413,41 +420,45 @@ document.getElementById('addStudentForm').addEventListener('submit', function(e)
 // Add this new code after your existing scripts
 document.getElementById('editStudentForm').addEventListener('submit', function(e) {
     e.preventDefault();
+    const submitButton = this.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
     
     fetch(this.action, {
         method: 'POST',
+        body: new FormData(this),
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json'
-        },
-        body: new FormData(this)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: data.message,
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                location.reload();
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message || 'Error updating student'
-            });
         }
+    })
+    .then(async response => {
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to update student');
+        }
+        return data;
+    })
+    .then(data => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: data.message,
+            showConfirmButton: false,
+            timer: 1500
+        }).then(() => {
+            $('#editStudentModal').modal('hide');
+            location.reload();
+        });
     })
     .catch(error => {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'An error occurred while updating the student'
+            text: error.message || 'An error occurred while updating the student'
         });
+    })
+    .finally(() => {
+        submitButton.disabled = false;
     });
 });
 </script>

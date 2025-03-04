@@ -3,47 +3,86 @@
 namespace App\Http\Controllers;
 
 use App\Models\Grade\Grades;
-use App\Models\Student\Students;
+use App\Models\Student;
+use App\Models\Subject;
 use Illuminate\Http\Request;
+use App\Http\Requests\Grade\GradeUpdateRequest;
+use App\Http\Requests\Grade\GradeDeleteRequest;
+use App\Models\Student\Students;
 
 class GradeController extends Controller
 {
     public function index()
     {
-        $students = Students::has('subjects')->with(['subjects', 'grades'])->get();
+        $students = Students::with(['subjects', 'grades'])->get();
         return view('Grade.Grade', compact('students'));
     }
 
-    public function store(Request $request)
+    public function update(GradeUpdateRequest $request, Grades $grade)
     {
         try {
-            $validated = $request->validate([
-                'student_id' => 'required|exists:students,id',
-                'subject_id' => 'required|exists:subjects,id',
-                'midterm' => 'required|numeric|min:1|max:5',
-                'finals' => 'required|numeric|min:1|max:5'
+            $validated = $request->validated();
+            
+            // Calculate average
+            if (isset($validated['midterm']) && isset($validated['finals'])) {
+                $validated['average'] = ($validated['midterm'] + $validated['finals']) / 2;
+                
+                // Set remarks based on average
+                $validated['remarks'] = $validated['average'] >= 75 ? 'Passed' : 'Failed';
+            }
+            
+            $grade->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Grades updated successfully!'
             ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating grades: ' . $e->getMessage()
+            ], 422);
+        }
+    }
 
-            // Calculate average of grade points directly
-            $average = ($validated['midterm'] + $validated['finals']) / 2;
+    public function destroy(GradeDeleteRequest $request, $studentId, $subjectId)
+    {
+        try {
+            $grade = Grades::where('student_id', $studentId)
+                         ->where('subject_id', $subjectId)
+                         ->firstOrFail();
             
-            // Round to 2 decimal places
-            $average = round($average, 2);
-            
-            // Determine remarks
-            $remarks = $average <= 3.00 ? 'Passed' : 'Failed';
+            $grade->delete();
 
-            Grades::updateOrCreate(
+            return response()->json([
+                'success' => true,
+                'message' => 'Grade deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting grade: ' . $e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function store(GradeUpdateRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+            
+            // Calculate average
+            if (isset($validated['midterm']) && isset($validated['finals'])) {
+                $validated['average'] = ($validated['midterm'] + $validated['finals']) / 2;
+                $validated['remarks'] = $validated['average'] >= 3 ? 'Failed' : 'Passed';
+            }
+            
+            $grade = Grades::updateOrCreate(
                 [
                     'student_id' => $validated['student_id'],
                     'subject_id' => $validated['subject_id']
                 ],
-                [
-                    'midterm' => $validated['midterm'],
-                    'finals' => $validated['finals'],
-                    'average' => $average,
-                    'remarks' => $remarks
-                ]
+                $validated
             );
 
             return response()->json([
@@ -55,26 +94,6 @@ class GradeController extends Controller
                 'success' => false,
                 'message' => 'Error saving grades: ' . $e->getMessage()
             ], 422);
-        }
-    }
-
-    public function destroy($student_id, $subject_id)
-    {
-        try {
-            $grade = Grades::where('student_id', $student_id)
-                          ->where('subject_id', $subject_id)
-                          ->firstOrFail();
-            $grade->delete();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Grade deleted successfully'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error deleting grade: ' . $e->getMessage()
-            ]);
         }
     }
 

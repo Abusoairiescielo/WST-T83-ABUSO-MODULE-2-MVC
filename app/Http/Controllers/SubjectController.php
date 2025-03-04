@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Subject\Students;
 use App\Models\Subject\Subjects;
 use Illuminate\Http\Request;
+use App\Http\Requests\Subject\StoreSubjectRequest;
+use App\Http\Requests\Subject\UpdateSubjectRequest;
 
 class SubjectController extends Controller
 {
@@ -14,17 +16,10 @@ class SubjectController extends Controller
         return view('Subjects.Subjects', compact('subjects'));
     }
 
-    public function store(Request $request)
+    public function store(StoreSubjectRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'subject_code' => 'required|unique:subjects',
-                'name' => 'required',
-                'description' => 'nullable',
-                'units' => 'required|integer',
-                'schedule' => 'nullable'
-            ]);
-
+            $validated = $request->validated();
             Subjects::create($validated);
             
             return response()->json([
@@ -49,17 +44,10 @@ class SubjectController extends Controller
         return view('Subjects.edit', compact('subject'));
     }
 
-    public function update(Request $request, Subjects $subject)
+    public function update(UpdateSubjectRequest $request, Subjects $subject)
     {
         try {
-            $validated = $request->validate([
-                'subject_code' => 'required|unique:subjects,subject_code,' . $subject->id,
-                'name' => 'required',
-                'description' => 'nullable',
-                'units' => 'required|integer',
-                'schedule' => 'nullable'
-            ]);
-
+            $validated = $request->validated();
             $subject->update($validated);
             
             return response()->json([
@@ -69,7 +57,7 @@ class SubjectController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating subject. ' . $e->getMessage()
+                'message' => 'Error updating subject: ' . $e->getMessage()
             ], 422);
         }
     }

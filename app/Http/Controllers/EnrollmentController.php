@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Student\Students;
 use App\Models\Subject\Subjects;
-use Illuminate\Http\Request;
+use App\Http\Requests\Enrollment\EnrollmentStoreRequest;
+use App\Http\Requests\Enrollment\EnrollmentUpdateRequest;
 
 class EnrollmentController extends Controller
 {
@@ -17,15 +18,10 @@ class EnrollmentController extends Controller
         ]);
     }
 
-    public function enroll(Request $request)
+    public function enroll(EnrollmentStoreRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'student_id' => 'required|exists:students,id',
-                'subjects' => 'required|array',
-                'subjects.*' => 'exists:subjects,id'
-            ]);
-
+            $validated = $request->validated();
             $student = Students::findOrFail($validated['student_id']);
             
             // Check if subjects were selected
@@ -56,16 +52,17 @@ class EnrollmentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unable to complete enrollment. Please ensure you have selected valid subjects and try again.'
+                'message' => 'Unable to complete enrollment.'
             ], 422);
         }
     }
 
-    public function updateSubjects(Request $request)
+    public function updateSubjects(EnrollmentUpdateRequest $request)
     {
         try {
-            $student = Students::findOrFail($request->student_id);
-            $student->subjects()->sync($request->subjects);
+            $validated = $request->validated();
+            $student = Students::findOrFail($validated['student_id']);
+            $student->subjects()->sync($validated['subjects']);
             
             return response()->json([
                 'success' => true,

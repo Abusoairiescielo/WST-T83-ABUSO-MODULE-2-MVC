@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Student\Students;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\Student\StudentDeleteRequest;
+use App\Http\Requests\Student\StudentUpdateRequest;
 
 class StudentController extends Controller
 {
@@ -24,11 +26,11 @@ class StudentController extends Controller
                     'required',
                     'email',
                     'unique:students',
-                    'regex:/^[a-zA-Z0-9._%+-]+@student\.buksu\.edu\.ph$/'
+                    'regex:/^[0-9]{10}@student\.buksu\.edu\.ph$/'  // Exactly 10 digits before @
                 ],
                 'status' => 'required|in:active,inactive'
             ], [
-                'email.regex' => 'The email must be a valid BukSU student email address (@student.buksu.edu.ph)'
+                'email.regex' => 'The email must be your 10-digit student number followed by @student.buksu.edu.ph'
             ]);
 
             Students::create($validated);
@@ -47,7 +49,11 @@ class StudentController extends Controller
 
     public function show(Students $student)
     {
-        return view('students.show', compact('student'));
+        // Instead of showing a view, return JSON response
+        return response()->json([
+            'success' => true,
+            'data' => $student
+        ]);
     }
 
     public function edit(Students $student)
@@ -55,31 +61,25 @@ class StudentController extends Controller
         return redirect()->route('students.index');
     }
 
-    public function update(Request $request, Students $student)
+    public function update(StudentUpdateRequest $request, Students $student)
     {
         try {
-            $validated = $request->validate([
-                'student_id' => 'required|unique:students,student_id,' . $student->id,
-                'name' => 'required',
-                'email' => 'required|email|unique:students,email,' . $student->id,
-                'status' => 'required|in:active,inactive'
-            ]);
-
+            $validated = $request->validated();
             $student->update($validated);
             
-            return response()->json([
+            return response()->json([   
                 'success' => true,
-                'message' => 'Student updated successfully!'
+                'message' => 'Student updated successfully'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating student. ' . $e->getMessage()
+                'message' => 'Error updating student: ' . $e->getMessage()
             ], 422);
         }
     }
 
-    public function destroy(Students $student)
+    public function destroy(StudentDeleteRequest $request, Students $student)
     {
         try {
             // Find and delete the associated user account
