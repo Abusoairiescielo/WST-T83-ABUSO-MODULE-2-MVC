@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\Student\StudentDeleteRequest;
 use App\Http\Requests\Student\StudentUpdateRequest;
+use App\Http\Requests\Student\StoreStudentRequest;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class StudentController extends Controller
 {
@@ -16,34 +19,32 @@ class StudentController extends Controller
         return view('Students.Students', compact('students'));
     }
 
-    public function store(Request $request)
+    public function store(StoreStudentRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'student_id' => 'required|unique:students',
-                'name' => 'required',
-                'email' => [
-                    'required',
-                    'email',
-                    'unique:students',
-                    'regex:/^[0-9]{10}@student\.buksu\.edu\.ph$/'  // Exactly 10 digits before @
-                ],
-                'status' => 'required|in:active,inactive'
-            ], [
-                'email.regex' => 'The email must be your 10-digit student number followed by @student.buksu.edu.ph'
+            // Create new student
+            $student = Students::create($request->validated());
+
+            // Create user account for the student
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->student_id), // Using student_id as default password
+                'role' => 'student'
             ]);
 
-            Students::create($validated);
-            
             return response()->json([
                 'success' => true,
-                'message' => 'Student added successfully!'
+                'message' => 'Student added successfully!',
+                'data' => $student
             ]);
+
         } catch (\Exception $e) {
+            \Log::error('Error adding student: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
-            ], 422);
+                'message' => 'An error occurred while adding the student. Please try again.'
+            ]);
         }
     }
 
@@ -100,6 +101,23 @@ class StudentController extends Controller
                 'success' => false,
                 'message' => 'Error deleting student: ' . $e->getMessage()
             ], 422);
+        }
+    }
+
+    public function markReady(Students $student)
+    {
+        try {
+            $student->update(['enrollment_status' => 'ready']);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Student marked as ready for enrollment'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating student status'
+            ]);
         }
     }
 }

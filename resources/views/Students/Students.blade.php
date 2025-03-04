@@ -24,6 +24,12 @@
                         <div class="d-flex align-items-center">
                             <h6 class="mb-0">Student Lists</h6>
                         </div>
+                        <button type="button" class="btn bg-gradient-primary btn-icon" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#addStudentModal" 
+                                title="Add New Student">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive">
@@ -54,6 +60,15 @@
                                                     title="Edit Student">
                                                 <i class="fas fa-edit"></i>
                                             </button>
+                                            
+                                            @if($student->enrollment_status === 'pending')
+                                                <button class="btn bg-gradient-success btn-icon"
+                                                        onclick="markReadyForEnrollment('{{ $student->id }}')"
+                                                        title="Mark Ready for Enrollment">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            @endif
+                                            
                                             <form id="delete-form-{{ $student->id }}" action="{{ route('students.destroy', $student) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
@@ -420,47 +435,79 @@ document.getElementById('addStudentForm').addEventListener('submit', function(e)
 // Add this new code after your existing scripts
 document.getElementById('editStudentForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const submitButton = this.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
     
     fetch(this.action, {
         method: 'POST',
-        body: new FormData(this),
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json'
-        }
+        },
+        body: new FormData(this)
     })
-    .then(async response => {
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.message || 'Failed to update student');
-        }
-        return data;
-    })
+    .then(response => response.json())
     .then(data => {
-        Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: data.message,
-            showConfirmButton: false,
-            timer: 1500
-        }).then(() => {
-            $('#editStudentModal').modal('hide');
-            location.reload();
-        });
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: data.message,
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Error updating student'
+            });
+        }
     })
     .catch(error => {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: error.message || 'An error occurred while updating the student'
+            text: 'An error occurred while updating the student'
         });
-    })
-    .finally(() => {
-        submitButton.disabled = false;
     });
 });
+
+function markReadyForEnrollment(studentId) {
+    Swal.fire({
+        title: 'Confirm',
+        text: "Mark this student as ready for enrollment?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#4C1D95',
+        cancelButtonColor: '#6B7280',
+        confirmButtonText: 'Yes, mark as ready'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/students/${studentId}/mark-ready`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Student is now ready for enrollment',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        location.reload();
+                    });
+                }
+            });
+        }
+    });
+}
 </script>
 @endpush
 

@@ -20,7 +20,7 @@ class StudentSeeder extends Seeder
         User::create([
             'name' => 'Admin',
             'email' => 'admin@buksu.edu.ph',
-            'password' => Hash::make('password'),
+            'password' => 'password', // Plain password for admin
             'user_type' => 'instructor',
         ]);
 
@@ -42,14 +42,15 @@ class StudentSeeder extends Seeder
                     'student_id' => $studentId,
                     'name' => $name,
                     'email' => $email,
-                    'status' => 'active'
+                    'status' => 'active',
+                    'enrollment_status' => 'pending'
                 ]);
 
-                // Create corresponding user account
+                // Create corresponding user account with plain student ID as password
                 User::create([
                     'name' => $name,
                     'email' => $email,
-                    'password' => Hash::make('password'),
+                    'password' => $studentId, // Plain student ID as password
                     'user_type' => 'student'
                 ]);
             } catch (\Exception $e) {

@@ -11,11 +11,18 @@ class EnrollmentController extends Controller
 {
     public function index()
     {
-        return view('enrollment', [
-            'students' => Students::whereDoesntHave('subjects')->get(),
-            'enrolledStudents' => Students::has('subjects')->with('subjects')->get(),
-            'subjects' => Subjects::all(),
-        ]);
+        $students = Students::where('enrollment_status', 'ready')
+                           ->where('status', 'active')
+                           ->whereDoesntHave('subjects')
+                           ->get();
+                           
+        $enrolledStudents = Students::whereHas('subjects')
+                                   ->with('subjects')
+                                   ->get();
+
+        $subjects = Subjects::all();
+                               
+        return view('enrollment', compact('students', 'enrolledStudents', 'subjects'));
     }
 
     public function enroll(EnrollmentStoreRequest $request)

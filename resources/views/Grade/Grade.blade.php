@@ -55,7 +55,7 @@
                                                     <button class="btn bg-gradient-warning btn-icon" 
                                                             title="{{ $grade ? 'Edit' : 'Add' }} Grade"
                                                             onclick="manageGrades({{ $student->id }}, {{ $subject->id }}, '{{ $grade ? $grade->midterm : '' }}', '{{ $grade ? $grade->finals : '' }}')">
-                                                        <i class="fas fa-pen"></i>
+                                                        <i class="fas fa-plus"></i>
                                                     </button>
                                                     @if($grade)
                                                         <button class="btn bg-gradient-danger btn-icon"

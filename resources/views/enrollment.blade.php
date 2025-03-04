@@ -31,16 +31,20 @@
                                 </thead>
                                 <tbody>
                                     @foreach($students as $student)
-                                    <tr>
-                                        <td>{{ $student->student_id }}</td>
-                                        <td>{{ $student->name }}</td>
-                                        <td>{{ $student->email }}</td>
-                                        <td>
-                                            <button class="btn bg-gradient-warning btn-sm" onclick="enrollStudent({{ $student->id }})" title="Enroll Student">
-                                                <i class="fas fa-user-plus"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                        @if($student->enrollment_status === 'ready')
+                                        <tr>
+                                            <td>{{ $student->student_id }}</td>
+                                            <td>{{ $student->name }}</td>
+                                            <td>{{ $student->email }}</td>
+                                            <td>
+                                                <button class="btn bg-gradient-warning btn-sm" 
+                                                        onclick="enrollStudent({{ $student->id }})" 
+                                                        title="Enroll Student">
+                                                    <i class="fas fa-user-plus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        @endif
                                     @endforeach
                                 </tbody>
                             </table>
@@ -105,7 +109,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Manage Subjects</h5>
+                <h5 class="modal-title text-white">Manage Subjects</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="subjectForm" action="{{ route('enrollment.subjects') }}" method="POST">
@@ -143,7 +147,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title text-white">
                     <i class="fas fa-user-plus me-2"></i>
                     Enroll Student
                 </h5>
@@ -464,6 +468,18 @@ function enrollStudent(studentId) {
 document.getElementById('enrollmentForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
+    // Check if at least one subject is selected
+    const selectedSubjects = this.querySelectorAll('input[name="subjects[]"]:checked');
+    if (selectedSubjects.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No Subjects Selected',
+            text: 'Please select subject to enroll the student.',
+            confirmButtonColor: '#4C1D95'
+        });
+        return;
+    }
+
     // Disable submit button to prevent double submission
     const submitButton = this.querySelector('button[type="submit"]');
     submitButton.disabled = true;
@@ -475,8 +491,15 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response:', response);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('Data:', data);
         if (data.success) {
             Swal.fire({
                 icon: 'success',
@@ -488,18 +511,38 @@ document.getElementById('enrollmentForm').addEventListener('submit', function(e)
                 location.reload();
             });
         } else {
+            let errorMessage = 'An error occurred while enrolling the student.';
+            
+            // Handle specific error cases
+            if (data.error === 'no_subjects') {
+                errorMessage = 'Please select at least one subject to enroll the student.';
+            } else if (data.error === 'already_enrolled') {
+                errorMessage = 'Student is already enrolled in one or more of the selected subjects.';
+            } else if (data.error === 'capacity_full') {
+                errorMessage = 'One or more selected subjects have reached their maximum capacity.';
+            } else if (data.error === 'schedule_conflict') {
+                errorMessage = 'There is a schedule conflict with the selected subjects.';
+            } else if (data.error === 'prerequisites') {
+                errorMessage = 'Prerequisites are not met for one or more selected subjects.';
+            } else if (data.message) {
+                errorMessage = data.message;
+            }
+
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: data.message
+                title: 'Enrollment Error',
+                text: errorMessage,
+                confirmButtonColor: '#4C1D95'
             });
         }
     })
     .catch(error => {
+        console.error('Enrollment error:', error);
         Swal.fire({
             icon: 'error',
-            title: 'Error',
-            text: 'Error enrolling student'
+            title: 'System Error',
+            text: 'An unexpected error occurred. Please try again or contact support if the problem persists.',
+            confirmButtonColor: '#4C1D95'
         });
     })
     .finally(() => {
@@ -534,6 +577,19 @@ function manageSubjects(studentId) {
 document.getElementById('subjectForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
+    // Check if at least one subject is selected
+    const selectedSubjects = this.querySelectorAll('input[name="subjects[]"]:checked');
+    if (selectedSubjects.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Subject Selection Required',
+            text: 'Please select at least one subject to manage enrollment.',
+            confirmButtonColor: '#4C1D95',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
     // Disable submit button to prevent double submission
     const submitButton = this.querySelector('button[type="submit"]');
     submitButton.disabled = true;
@@ -551,25 +607,45 @@ document.getElementById('subjectForm').addEventListener('submit', function(e) {
             Swal.fire({
                 icon: 'success',
                 title: 'Success!',
-                text: data.message,
+                text: 'Subject enrollment has been updated successfully.',
                 showConfirmButton: false,
                 timer: 1500
             }).then(() => {
                 location.reload();
             });
         } else {
+            let errorTitle = 'Subject Management Error';
+            let errorMessage = 'Please check your subject selection and try again.';
+
+            // More specific error messages based on the error type
+            if (data.error === 'no_subjects') {
+                errorTitle = 'No Subjects Selected';
+                errorMessage = 'Please select at least one subject to proceed with enrollment.';
+            } else if (data.error === 'invalid_selection') {
+                errorTitle = 'Invalid Subject Selection';
+                errorMessage = 'The selected combination of subjects is not valid. Please review your selection.';
+            } else if (data.error === 'schedule_conflict') {
+                errorTitle = 'Schedule Conflict Detected';
+                errorMessage = 'There are schedule conflicts with the selected subjects. Please choose different subjects.';
+            }
+
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: data.message
+                title: errorTitle,
+                text: errorMessage,
+                confirmButtonColor: '#4C1D95',
+                confirmButtonText: 'Try Again'
             });
         }
     })
     .catch(error => {
+        console.error('Subject management error:', error);
         Swal.fire({
             icon: 'error',
-            title: 'Error',
-            text: 'Error managing subjects'
+            title: 'Unable to Update Subjects',
+            text: 'There was a problem updating the subject enrollment. Please try again or contact support if the issue persists.',
+            confirmButtonColor: '#4C1D95',
+            confirmButtonText: 'OK'
         });
     })
     .finally(() => {

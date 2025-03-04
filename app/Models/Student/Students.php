@@ -17,7 +17,8 @@ class Students extends Model
         'email',
         'course',
         'year',
-        'status'
+        'status',
+        'enrollment_status'
     ];
 
     // Relationship with subjects (many-to-many)

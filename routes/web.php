@@ -58,4 +58,9 @@ Route::middleware(['auth', 'user.type:instructor'])->group(function () {
     Route::post('/enrollment/unenroll/{student}', [EnrollmentController::class, 'unenroll'])->name('enrollment.unenroll');
 });
 
+Route::post('/students', [StudentController::class, 'store'])->name('students.store');
+
+Route::post('/students/{student}/mark-ready', [StudentController::class, 'markReady'])
+    ->name('students.mark-ready');
+
 require __DIR__.'/auth.php';

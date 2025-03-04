@@ -363,6 +363,37 @@
     .fa-user-circle {
         font-size: 24px !important;
     }
+
+    /* Logout button styling */
+    .nav-item form {
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-item form button.nav-link {
+        width: 100%;
+        border: none;
+        background: none;
+        display: flex;
+        align-items: center;
+        padding: 0.675rem 1rem;
+        margin: 0 1rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .nav-item form button.nav-link:hover {
+        background: linear-gradient(310deg, var(--violet-medium), var(--violet-dark));
+    }
+
+    .nav-item form button.nav-link:hover .icon {
+        background: transparent !important;
+    }
+
+    .nav-item form button.nav-link:hover .nav-link-text {
+        color: white !important;
+        font-weight: 600;
+    }
   </style>
 </head>
 
@@ -494,28 +525,15 @@
                     </a>
                 </li>
             @endif
-            <li class="nav-item mt-3">
-                <form method="POST" action="{{ route('logout') }}" id="logout-form">
+            <li class="nav-item">
+                <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <a class="nav-link d-flex align-items-center logout-btn" href="#" 
-                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <button type="submit" class="nav-link">
                         <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <svg width="16px" height="16px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                <title>logout</title>
-                                <g stroke="none" stroke-width="2" fill="none" fill-rule="evenodd">
-                                    <g transform="translate(-2020.000000, -442.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                        <g transform="translate(1716.000000, 291.000000)">
-                                            <g transform="translate(304.000000, 151.000000)">
-                                                <path class="color-background opacity-6" d="M15.0002,6.99999997 C15.0002,4.23857625 17.2388,2 20.0002,2 L32.0002,2 C34.7616,2 37.0002,4.23857625 37.0002,6.99999997 L37.0002,32.9999999 C37.0002,35.7614237 34.7616,38 32.0002,38 L20.0002,38 C17.2388,38 15.0002,35.7614237 15.0002,32.9999999 L15.0002,26.9999999 L18.0002,26.9999999 L18.0002,32.9999999 L34.0002,32.9999999 L34.0002,6.99999997 L18.0002,6.99999997 L18.0002,12.9999999 L15.0002,12.9999999 L15.0002,6.99999997 Z"></path>
-                                                <path class="color-background" d="M15.7071068,20.7071067 C15.3165825,21.097631 14.6834175,21.097631 14.2928932,20.7071067 L4.29289322,10.7071067 C3.90236893,10.3165825 3.90236893,9.68341751 4.29289322,9.29289322 L14.2928932,-0.707106781 C14.6834175,-1.09763107 15.3165825,-1.09763107 15.7071068,-0.707106781 C16.0976311,-0.316582489 16.0976311,0.316582489 15.7071068,0.707106781 L7.41421356,9 L24,9 C24.5522847,9 25,9.44771525 25,10 L25,20 C25,20.5522847 24.5522847,21 24,21 L7.41421356,21 L15.7071068,29.2928932 C16.0976311,29.6834175 16.0976311,30.3165825 15.7071068,30.7071068 C15.3165825,31.0976311 14.6834175,31.0976311 14.2928932,30.7071068 L4.29289322,20.7071067 C3.90236893,20.3165825 3.90236893,19.6834175 4.29289322,19.2928932 L14.2928932,9.29289322 C14.6834175,8.90236893 15.3165825,8.90236893 15.7071068,9.29289322 C16.0976311,9.68341751 16.0976311,10.3165825 15.7071068,10.7071067 L7.41421356,19 L22,19 L22,11 L7.41421356,11 L15.7071068,19.2928932 C16.0976311,19.6834175 16.0976311,20.3165825 15.7071068,20.7071067 Z" transform="translate(14.500000, 15.000000) scale(-1, 1) translate(-14.500000, -15.000000)"></path>
-                                            </g>
-                                        </g>
-                                    </g>
-                                </g>
-                            </svg>
+                            <i class="fas fa-sign-out-alt text-dark opacity-10"></i>
                         </div>
                         <span class="nav-link-text ms-1">Sign Out</span>
-                    </a>
+                    </button>
                 </form>
             </li>
         </ul>
