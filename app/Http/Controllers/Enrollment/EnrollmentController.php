@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Enrollment;
 
 use App\Models\Student\Students;
 use App\Models\Subject\Subjects;
 use App\Http\Requests\Enrollment\EnrollmentStoreRequest;
 use App\Http\Requests\Enrollment\EnrollmentUpdateRequest;
+use App\Http\Controllers\Controller;
 
 class EnrollmentController extends Controller
 {

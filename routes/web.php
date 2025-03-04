@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\EnrollmentController;
-use App\Http\Controllers\StudentController;
+use App\Http\Controllers\Student\StudentController;
+use App\Http\Controllers\Student\StudentDashboardController;
+use App\Http\Controllers\Subject\SubjectController;
+use App\Http\Controllers\Grade\GradeController;
+use App\Http\Controllers\Enrollment\EnrollmentController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\SubjectController;
-use App\Http\Controllers\GradeController;
-use App\Http\Controllers\StudentDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -48,7 +48,7 @@ Route::middleware(['auth', 'user.type:instructor'])->group(function () {
     Route::get('/grades', [GradeController::class, 'index'])->name('grades.index');
     Route::post('/grades', [GradeController::class, 'store'])->name('grades.store');
     Route::put('/grades/{grade}', [GradeController::class, 'update'])->name('grades.update');
-    Route::delete('/grades/{student}/{subject}', [GradeController::class, 'destroy'])->name('grades.destroy');
+    Route::delete('/grades/delete/{student}/{subject}', [GradeController::class, 'destroy'])->name('grades.destroy');
     
     // Enrollment routes
     Route::get('/enrollment', [EnrollmentController::class, 'index'])->name('enrollment.index');

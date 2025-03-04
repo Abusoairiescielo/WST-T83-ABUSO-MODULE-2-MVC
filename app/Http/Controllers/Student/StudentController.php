@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Student;
 
 use App\Models\Student\Students;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Requests\Student\StudentDeleteRequest;
+use App\Http\Requests\Student\DeleteStudentRequest;
 use App\Http\Requests\Student\StudentUpdateRequest;
 use App\Http\Requests\Student\StoreStudentRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Controller;
 
 class StudentController extends Controller
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Student;
+namespace App\Http\Requests\Grade;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StudentDeleteRequest extends FormRequest
+class DeleteGradeRequest extends FormRequest
 {
     public function authorize()
     {
@@ -13,6 +13,14 @@ class StudentDeleteRequest extends FormRequest
 
     public function rules()
     {
-        return [];
+        return [
+            'student' => 'required|exists:students,id',  
+            'subject' => 'required|exists:subjects,id'  
+        ];
+    }
+
+    protected function validationData()
+    {
+        return array_merge($this->route()->parameters(), $this->all());
     }
 }

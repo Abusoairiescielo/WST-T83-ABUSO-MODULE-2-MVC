@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Subject;
 
 use App\Models\Subject\Students;
 use App\Models\Subject\Subjects;
 use Illuminate\Http\Request;
 use App\Http\Requests\Subject\StoreSubjectRequest;
 use App\Http\Requests\Subject\UpdateSubjectRequest;
+use App\Http\Controllers\Controller;
 
 class SubjectController extends Controller
 {

@@ -1,20 +1,23 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Grade;
 
 use App\Models\Grade\Grades;
 use App\Models\Student;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use App\Http\Requests\Grade\GradeUpdateRequest;
-use App\Http\Requests\Grade\GradeDeleteRequest;
+use App\Http\Requests\Grade\DeleteGradeRequest;
 use App\Models\Student\Students;
+use App\Http\Controllers\Controller;
 
 class GradeController extends Controller
 {
     public function index()
     {
-        $students = Students::with(['subjects', 'grades'])->get();
+        $students = Students::with(['subjects', 'grades'])
+                        ->whereHas('subjects')  // Only get students who have subjects
+                        ->get();
         return view('Grade.Grade', compact('students'));
     }
 
@@ -45,15 +48,21 @@ class GradeController extends Controller
         }
     }
 
-    public function destroy(GradeDeleteRequest $request, $studentId, $subjectId)
+    public function destroy(DeleteGradeRequest $request, $studentId, $subjectId)
     {
         try {
+            // Validate parameters
+            if (!$studentId || !$subjectId) {
+                throw new \Exception('Student ID and Subject ID are required');
+            }
+    
+            // Check if student and subject exist
             $grade = Grades::where('student_id', $studentId)
                          ->where('subject_id', $subjectId)
                          ->firstOrFail();
             
             $grade->delete();
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Grade deleted successfully'

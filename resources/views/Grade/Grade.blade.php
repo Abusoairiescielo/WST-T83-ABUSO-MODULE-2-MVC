@@ -21,52 +21,40 @@
                                     <tr>
                                         <th>Student ID</th>
                                         <th>Name</th>
-                                        <th>Subject</th>
-                                        <th>Midterm</th>
-                                        <th>Finals</th>
-                                        <th>Average</th>
-                                        <th>Remarks</th>
-                                        <th>Actions</th>
+                                        <th>Subjects</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($students as $student)
-                                        @foreach($student->subjects as $subject)
-                                            @php
-                                                $grade = $student->grades->where('subject_id', $subject->id)->first();
-                                            @endphp
-                                            <tr>
-                                                <td>{{ $student->student_id }}</td>
-                                                <td>{{ $student->name }}</td>
-                                                <td>{{ $subject->name }}</td>
-                                                <td>{{ $grade ? $grade->midterm : '-' }}</td>
-                                                <td>{{ $grade ? $grade->finals : '-' }}</td>
-                                                <td>{{ $grade ? number_format($grade->average, 2) : '-' }}</td>
-                                                <td>
-                                                    @if($grade)
-                                                        <span class="badge bg-{{ $grade->remarks === 'Passed' ? 'success' : 'danger' }}">
-                                                            {{ $grade->remarks }}
-                                                        </span>
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <button class="btn bg-gradient-warning btn-icon" 
-                                                            title="{{ $grade ? 'Edit' : 'Add' }} Grade"
-                                                            onclick="manageGrades({{ $student->id }}, {{ $subject->id }}, '{{ $grade ? $grade->midterm : '' }}', '{{ $grade ? $grade->finals : '' }}')">
-                                                        <i class="fas fa-plus"></i>
+                                    <tr>
+                                        <td>{{ $student->student_id }}</td>
+                                        <td>{{ $student->name }}</td>
+                                        <td>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                @foreach($student->subjects as $subject)
+                                                    @php
+                                                        $grade = $student->grades->where('subject_id', $subject->id)->first();
+                                                    @endphp
+                                                    <button class="btn btn-sm subject-btn {{ $grade ? ($grade->remarks === 'Passed' ? 'bg-success' : 'bg-danger') : 'bg-secondary' }}"
+                                                            onclick="manageGrades({{ $student->id }}, {{ $subject->id }}, '{{ $grade ? $grade->midterm : '' }}', '{{ $grade ? $grade->finals : '' }}')"
+                                                            title="{{ $subject->name }} - {{ $grade ? $grade->remarks : 'No Grade' }}">
+                                                        <div class="d-flex flex-column align-items-center">
+                                                            <span class="subject-code">{{ $subject->subject_code }}</span>
+                                                            <span class="subject-name-small">{{ $subject->name }}</span>
+                                                        </div>
+                                                        @if($grade)
+                                                            <button type="button" 
+                                                                    class="delete-grade-btn"
+                                                                    onclick="event.stopPropagation(); confirmDeleteGrade({{ $student->id }}, {{ $subject->id }})"
+                                                                    title="Delete Grade">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        @endif
                                                     </button>
-                                                    @if($grade)
-                                                        <button class="btn bg-gradient-danger btn-icon"
-                                                                title="Delete Grade"
-                                                                onclick="confirmDeleteGrade({{ $student->id }}, {{ $subject->id }})">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
+                                                @endforeach
+                                            </div>
+                                        </td>
+                                    </tr>
                                     @endforeach
                                 </tbody>
                             </table>
@@ -103,12 +91,26 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-icon" data-bs-dismiss="modal" title="Close">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <button type="submit" class="btn bg-gradient-primary btn-icon" title="Save Changes">
-                        <i class="fas fa-save"></i>
-                    </button>
+                    <div class="d-flex justify-content-between w-100">
+                        <div>
+                            <button type="button" 
+                                    class="btn bg-gradient-danger btn-icon" 
+                                    id="deleteGradeBtn"
+                                    onclick="confirmDeleteGrade(document.getElementById('grade_student_id').value, document.getElementById('grade_subject_id').value)" 
+                                    title="Delete Grade"
+                                    style="display: none;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-icon" data-bs-dismiss="modal" title="Close">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button type="submit" class="btn bg-gradient-primary btn-icon" title="Save Changes">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -134,6 +136,10 @@ function manageGrades(studentId, subjectId, midterm, finals) {
     document.getElementById('grade_subject_id').value = subjectId;
     document.getElementById('midterm').value = midterm;
     document.getElementById('finals').value = finals;
+    
+    // Show delete button only if there are grades
+    const deleteBtn = document.getElementById('deleteGradeBtn');
+    deleteBtn.style.display = (midterm || finals) ? 'inline-flex' : 'none';
     
     const gradeModal = new bootstrap.Modal(document.getElementById('gradeModal'));
     gradeModal.show();
@@ -186,44 +192,36 @@ document.getElementById('gradeForm').addEventListener('submit', function(e) {
 function confirmDeleteGrade(studentId, subjectId) {
     Swal.fire({
         title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+        text: "This will delete the grade permanently!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#4C1D95',
+        confirmButtonColor: '#dc2626',
         cancelButtonColor: '#6B7280',
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel'
+        confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
         if (result.isConfirmed) {
-            const deleteUrl = `/grades/${studentId}/${subjectId}`;
-            fetch(deleteUrl, {
+            fetch(`/grades/delete/${studentId}/${subjectId}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 }
             })
-            .then(async response => {
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                    return response.json();
-                } else {
-                    if (response.ok) {
-                        return { success: true, message: 'Grade deleted successfully' };
-                    }
-                    throw new Error('Failed to delete grade');
-                }
-            })
+            .then(response => response.json())
             .then(data => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Deleted!',
-                    text: 'Grade has been deleted successfully.',
-                    showConfirmButton: false,
-                    timer: 1500
-                }).then(() => {
-                    location.reload();
-                });
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Grade has been deleted.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    throw new Error(data.message);
+                }
             })
             .catch(error => {
                 Swal.fire({
@@ -267,12 +265,66 @@ $(document).ready(function() {
 @endpush
 
 <style>
-    /* Base button styles */
+    /* Reset all button behaviors */
     .btn {
+        all: unset;
+        cursor: pointer !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Base subject button styles */
+    .subject-btn {
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+        width: 120px !important;
+        height: auto !important;
+        min-height: 50px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 4px !important;
+        border-radius: 4px !important;
+        color: white !important;
+        pointer-events: auto !important;
+        user-select: none !important;
         position: relative !important;
+        background-clip: padding-box !important;
+    }
+
+    /* Ensure text and content stability */
+    .subject-btn, 
+    .subject-btn * {
         transform: none !important;
         transition: none !important;
-        will-change: none !important;
+        animation: none !important;
+        will-change: auto !important;
+        backface-visibility: hidden !important;
+        -webkit-font-smoothing: antialiased !important;
+        text-rendering: optimizeLegibility !important;
+    }
+
+    /* Override any Bootstrap or framework styles */
+    .btn,
+    .btn-sm,
+    .btn-icon,
+    .subject-btn,
+    .bg-success,
+    .bg-danger,
+    .bg-secondary {
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+        box-shadow: none !important;
+        will-change: auto !important;
+    }
+
+    /* Disable all hover, focus, and active states */
+    .subject-btn:hover,
+    .subject-btn:focus,
+    .subject-btn:active {
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
         box-shadow: none !important;
     }
 
@@ -287,8 +339,6 @@ $(document).ready(function() {
         justify-content: center !important;
         gap: 8px !important;
         margin: 0.25rem !important;
-        transform: none !important;
-        transition: none !important;
     }
 
     /* Icon button styles */
@@ -307,14 +357,6 @@ $(document).ready(function() {
     .btn-icon i {
         font-size: 14px !important;
         margin: 0 !important;
-    }
-
-    /* Remove any transform effects */
-    .btn-icon:hover,
-    .btn-icon:focus,
-    .btn-icon:active {
-        transform: none !important;
-        box-shadow: none !important;
     }
 
     /* Warning/Edit button */
@@ -563,6 +605,94 @@ $(document).ready(function() {
 
     .btn.btn-secondary.btn-icon:hover {
         background: #4B5563 !important;
+    }
+
+    .subject-grade-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 4px;
+        background-color: #f8f9fa;
+        min-width: 250px;
+    }
+
+    .subject-name {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #344767;
+    }
+
+    .grades {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 8px;
+    }
+
+    .grades span {
+        font-size: 0.875rem;
+    }
+
+    .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .gap-2 {
+        gap: 0.5rem !important;
+    }
+
+    .d-flex {
+        display: flex !important;
+    }
+
+    .flex-wrap {
+        flex-wrap: wrap !important;
+    }
+
+    .subject-code {
+        font-weight: bold !important;
+        font-size: 12px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .subject-name-small {
+        font-size: 10px !important;
+        text-align: center !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        max-width: 100% !important;
+    }
+
+    .subject-btn {
+        position: relative !important;
+    }
+
+    .delete-grade-btn {
+        position: absolute !important;
+        top: -8px !important;
+        right: -8px !important;
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 50% !important;
+        background: #dc2626 !important;
+        border: none !important;
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 10px !important;
+        padding: 0 !important;
+        cursor: pointer !important;
+        opacity: 0 !important;
+        transition: opacity 0.2s !important;
+    }
+
+    .subject-btn:hover .delete-grade-btn {
+        opacity: 1 !important;
     }
 </style>
 

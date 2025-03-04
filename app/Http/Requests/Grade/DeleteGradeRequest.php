@@ -13,6 +13,6 @@ class DeleteGradeRequest extends FormRequest
 
     public function rules()
     {
-        return []; // No validation needed as IDs are in URL
+        return [];  // Remove validation rules since we're using route parameters
     }
 }
