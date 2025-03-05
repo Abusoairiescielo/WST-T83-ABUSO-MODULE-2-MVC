@@ -35,9 +35,9 @@
                                                     @php
                                                         $grade = $student->grades->where('subject_id', $subject->id)->first();
                                                     @endphp
-                                                    <button class="btn btn-sm subject-btn {{ $grade ? ($grade->remarks === 'Passed' ? 'bg-success' : 'bg-danger') : 'bg-secondary' }}"
+                                                    <button class="btn btn-sm subject-btn {{ $subject->deleted_at ? 'bg-warning' : ($grade ? ($grade->remarks === 'Passed' ? 'bg-success' : 'bg-danger') : 'bg-secondary') }}"
                                                             onclick="manageGrades({{ $student->id }}, {{ $subject->id }}, '{{ $grade ? $grade->midterm : '' }}', '{{ $grade ? $grade->finals : '' }}')"
-                                                            title="{{ $subject->name }} - {{ $grade ? $grade->remarks : 'No Grade' }}">
+                                                            title="{{ $subject->name }} {{ $subject->deleted_at ? '(Deleted)' : '' }} - {{ $grade ? $grade->remarks : 'No Grade' }}">
                                                         <div class="d-flex flex-column align-items-center">
                                                             <span class="subject-code">{{ $subject->subject_code }}</span>
                                                             <span class="subject-name-small">{{ $subject->name }}</span>
@@ -181,7 +181,7 @@ document.getElementById('gradeForm').addEventListener('submit', function(e) {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Error saving grades'
+            text: 'Input grade is not valid'
         });
     })
     .finally(() => {

@@ -65,7 +65,19 @@ class SubjectController extends Controller
 
     public function destroy(Subjects $subject)
     {
-        $subject->delete();
-        return redirect()->back()->with('success', 'Subject deleted successfully');
+        try {
+            // Check if subject has enrolled students with grades
+            if ($subject->students()->whereHas('grades')->exists()) {
+                // Soft delete the subject instead of hard delete
+                $subject->delete();
+                return redirect()->back()->with('success', 'Subject archived successfully');
+            }
+
+            // If no students with grades, perform hard delete
+            $subject->forceDelete();
+            return redirect()->back()->with('success', 'Subject deleted successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error deleting subject: ' . $e->getMessage());
+        }
     }
 }

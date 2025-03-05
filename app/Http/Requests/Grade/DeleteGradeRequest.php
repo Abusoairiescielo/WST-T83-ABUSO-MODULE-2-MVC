@@ -13,6 +13,14 @@ class DeleteGradeRequest extends FormRequest
 
     public function rules()
     {
-        return [];  // Remove validation rules since we're using route parameters
+        return [
+            'student' => 'required|exists:students,id',  
+            'subject' => 'required|exists:subjects,id'  
+        ];
+    }
+
+    public function validationData()
+    {
+        return array_merge($this->route()->parameters(), $this->all());
     }
 }

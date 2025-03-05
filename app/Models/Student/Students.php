@@ -24,7 +24,10 @@ class Students extends Model
     // Relationship with subjects (many-to-many)
     public function subjects()
     {
-        return $this->belongsToMany(Subjects::class, 'student_subject', 'student_id', 'subject_id');
+        return $this->belongsToMany(Subjects::class, 'student_subject', 'student_id', 'subject_id')
+                    ->withTrashed()
+                    ->withPivot('grade')
+                    ->withTimestamps();
     }
 
     public function grades()

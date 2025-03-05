@@ -15,9 +15,15 @@ class GradeController extends Controller
 {
     public function index()
     {
-        $students = Students::with(['subjects', 'grades'])
-                        ->whereHas('subjects')  // Only get students who have subjects
-                        ->get();
+        $students = Students::with([
+            'subjects' => function($query) {
+                $query->withTrashed();
+            }, 
+            'grades'
+        ])
+        ->whereHas('subjects')
+        ->get();
+        
         return view('Grade.Grade', compact('students'));
     }
 
@@ -29,9 +35,7 @@ class GradeController extends Controller
             // Calculate average
             if (isset($validated['midterm']) && isset($validated['finals'])) {
                 $validated['average'] = ($validated['midterm'] + $validated['finals']) / 2;
-                
-                // Set remarks based on average
-                $validated['remarks'] = $validated['average'] >= 75 ? 'Passed' : 'Failed';
+                $validated['remarks'] = $validated['average'] > 3.00 ? 'Failed' : 'Passed';
             }
             
             $grade->update($validated);
@@ -43,7 +47,7 @@ class GradeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating grades: ' . $e->getMessage()
+                'message' => 'Input grade is not valid: ' . $e->getMessage()
             ], 422);
         }
     }
@@ -70,7 +74,7 @@ class GradeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error deleting grade: ' . $e->getMessage()
+                'message' => 'Input grade is not valid: ' . $e->getMessage()
             ], 422);
         }
     }
@@ -83,7 +87,7 @@ class GradeController extends Controller
             // Calculate average
             if (isset($validated['midterm']) && isset($validated['finals'])) {
                 $validated['average'] = ($validated['midterm'] + $validated['finals']) / 2;
-                $validated['remarks'] = $validated['average'] >= 3 ? 'Failed' : 'Passed';
+                $validated['remarks'] = $validated['average'] > 3.00 ? 'Failed' : 'Passed';
             }
             
             $grade = Grades::updateOrCreate(
@@ -101,7 +105,7 @@ class GradeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error saving grades: ' . $e->getMessage()
+                'message' => 'Input grade is not valid: ' . $e->getMessage()
             ], 422);
         }
     }

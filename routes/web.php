@@ -63,4 +63,6 @@ Route::post('/students', [StudentController::class, 'store'])->name('students.st
 Route::post('/students/{student}/mark-ready', [StudentController::class, 'markReady'])
     ->name('students.mark-ready');
 
+Route::delete('/students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
+
 require __DIR__.'/auth.php';

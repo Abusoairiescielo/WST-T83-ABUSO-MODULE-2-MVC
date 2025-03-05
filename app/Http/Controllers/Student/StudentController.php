@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Student;
 use App\Models\Student\Students;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Requests\Student\DeleteStudentRequest;
+use App\Http\Requests\Student\StudentDeleteRequest;
 use App\Http\Requests\Student\StudentUpdateRequest;
 use App\Http\Requests\Student\StoreStudentRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Enrollment\EnrollmentController;
 
 class StudentController extends Controller
 {
@@ -26,11 +27,11 @@ class StudentController extends Controller
             // Create new student
             $student = Students::create($request->validated());
 
-            // Create user account for the student
+            // Create user account with the provided password
             User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->student_id), // Using student_id as default password
+                'password' => Hash::make($request->password), // Use only the provided password
                 'role' => 'student'
             ]);
 
@@ -84,13 +85,16 @@ class StudentController extends Controller
     public function destroy(StudentDeleteRequest $request, Students $student)
     {
         try {
+            // First unenroll the student (this will handle grades and subjects)
+            app(EnrollmentController::class)->unenroll($student);
+
             // Find and delete the associated user account
             $user = User::where('email', $student->email)->first();
             if ($user) {
                 $user->delete();
             }
 
-            // Delete the student record
+            // Then delete the student record
             $student->delete();
 
             return response()->json([
@@ -98,6 +102,7 @@ class StudentController extends Controller
                 'message' => 'Student deleted successfully!'
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error deleting student: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error deleting student: ' . $e->getMessage()

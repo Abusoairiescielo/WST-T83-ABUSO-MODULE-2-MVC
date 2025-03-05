@@ -394,6 +394,71 @@
         color: white !important;
         font-weight: 600;
     }
+
+    /* Remove click/tap highlight effect */
+    .sidenav .nav-link,
+    .sidenav .nav-item {
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        transition: none !important;
+    }
+
+    .sidenav .nav-link:active,
+    .sidenav .nav-item:active,
+    .sidenav .nav-link:focus,
+    .sidenav .nav-item:focus {
+        background: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+        outline: none !important;
+    }
+
+    /* Preserve hover effect but remove click transition */
+    .sidenav .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Consistent icon styling */
+    .sidenav .nav-link .icon {
+        background: transparent !important;
+        transition: all 0.3s ease;
+    }
+
+    /* Icon and SVG color transitions */
+    .sidenav .nav-link .icon i,
+    .sidenav .nav-link .icon svg,
+    .sidenav .nav-link .color-background {
+        color: white !important;
+        fill: white !important;
+        transition: all 0.3s ease;
+    }
+
+    /* Hover and active states */
+    .sidenav .nav-link:hover .icon i,
+    .sidenav .nav-link:hover .icon svg,
+    .sidenav .nav-link.active .icon i,
+    .sidenav .nav-link.active .icon svg,
+    .sidenav .nav-link:hover .color-background,
+    .sidenav .nav-link.active .color-background {
+        color: #344767 !important;
+        fill: #344767 !important;
+    }
+
+    /* Background transitions */
+    .sidenav .nav-link:hover .icon,
+    .sidenav .nav-link.active .icon {
+        background: white !important;
+    }
+
+    /* Remove unwanted transitions */
+    .sidenav .nav-link:active,
+    .sidenav .nav-item:active {
+        background: none !important;
+    }
+
+    /* Hover effect */
+    .sidenav .nav-link:hover {
+        background: linear-gradient(310deg, var(--violet-medium), var(--violet-dark));
+    }
   </style>
 </head>
 

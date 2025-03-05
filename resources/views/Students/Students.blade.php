@@ -231,7 +231,9 @@ function confirmDelete(formId) {
             fetch(form.action, {
                 method: 'DELETE',
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
             })
             .then(response => response.json())
@@ -247,18 +249,14 @@ function confirmDelete(formId) {
                         location.reload();
                     });
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message
-                    });
+                    throw new Error(data.message);
                 }
             })
             .catch(error => {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Error deleting student'
+                    text: error.message || 'Error deleting student'
                 });
             });
         }

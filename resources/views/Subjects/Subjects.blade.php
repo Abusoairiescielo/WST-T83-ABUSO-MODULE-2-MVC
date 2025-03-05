@@ -32,6 +32,7 @@
                                         <th>Description</th>
                                         <th>Units</th>
                                         <th>Schedule</th>
+                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -43,6 +44,11 @@
                                         <td>{{ $subject->description }}</td>
                                         <td>{{ $subject->units }}</td>
                                         <td>{{ $subject->schedule }}</td>
+                                        <td>
+                                            <span class="badge badge-sm bg-gradient-{{ $subject->deleted_at ? 'warning' : 'success' }}">
+                                                {{ $subject->deleted_at ? 'Archived' : 'Active' }}
+                                            </span>
+                                        </td>
                                         <td>
                                             <button class="btn bg-gradient-warning btn-icon" 
                                                     title="Edit Subject"
